@@ -32,7 +32,11 @@ To run the sample application locally:
     ```sh
     npm run build
     ```
-5.  Open the `index.html` file in your web browser to see the application in action.
+5.  See the application in action.
+    ```sh
+    cd ../../
+    npx serve
+    ```
 
 ## Acknowledgements
 
