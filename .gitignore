@@ -2,3 +2,9 @@
 **/node_modules/
 
 .DS_Store
+
+# Built demo site (the runtime's dist/ is committed on purpose)
+/examples/notes/dist/
+
+# Licensed fonts: fetched at build time, never committed
+/examples/notes/public/fonts/MonoLisa-*.ttf

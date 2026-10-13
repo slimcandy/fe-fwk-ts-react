@@ -1,43 +1,80 @@
-# Educational version of React
+# fe-fwk-ts-react
 
-Typescript and React-like framework based on the book ["Build a web frontend framework (from scratch)"](https://www.manning.com/books/build-a-frontend-web-framework-from-scratch).
+A TypeScript port of the framework from the book [Build a Frontend Web Framework (From Scratch)](https://www.manning.com/books/build-a-frontend-web-framework-from-scratch) by Ángel Sola Orbaiceta, following his [official repository](https://github.com/angelsolaorbaiceta/fe-fwk-book), with types and names taken from React. If you read the book, this shows how each piece maps to React.
 
-## Core Features Implemented
+**Demo:** [react.avolkov.dev](https://react.avolkov.dev), a notes app that shows, for every action, how many components ran `render()` and how many times the DOM really changed.
 
-- **Virtual DOM:** A programming concept where a virtual representation of a UI is kept in memory and synced with the "real" DOM. This allows for efficient updates and rendering.
-- **Reconciliation Algorithm:** The logic that compares the old virtual DOM tree with the new one to determine the most efficient way to update the actual DOM.
-- **Component-Based Architecture:** The ability to build encapsulated and reusable UI components with their own state and lifecycle.
-- **State Management:** A system for managing the state of components and re-rendering them when the state changes.
-- **JSX-like `createElement` function:** A function for creating virtual DOM nodes, similar to what JSX compiles down to in React.
-- **Event Handling:** A mechanism for handling DOM events and dispatching them to the appropriate components.
-- **Lifecycle Methods:** Components can define methods like `componentDidMount` and `componentWillUnmount` that are called at specific points in their lifecycle.
+## What's inside
 
-## Getting Started
+- **Virtual DOM:** `createElement()` builds plain objects; `mountDOM()` turns them into DOM nodes.
+- **Reconciliation:** `patchDOM()` compares the old and new trees and changes only what differs. `arraysDiffSequence()` finds the added, removed and moved children of keyed lists.
+- **Components:** `createComponent()` with `state`, `setState()`, `componentDidMount()` and `componentWillUnmount()`. A component whose props didn't change skips `render()`.
+- **Events:** DOM events through `on: { click }`, and component events through `emit()`.
+- **Scheduler:** lifecycle hooks run in a microtask queue after the DOM work.
 
-To run the sample application locally:
+## Names: the book, this port, React
 
-1.  Clone this repository:
-    ```sh
-    git clone https://github.com/slimcandy/fe-fwk-ts-react
-    ```
-2.  Navigate to the project directory:
-    ```sh
-    cd fe-fwk-ts-react/packages/runtime
-    ```
-3.  Install the dependencies (you will need Node.js and npm installed):
-    ```sh
-    npm install
-    ```
-4.  Build the framework and the application:
-    ```sh
-    npm run build
-    ```
-5.  See the application in action.
-    ```sh
-    cd ../../
-    npx serve
-    ```
+| Book | This port | React |
+|---|---|---|
+| `h()` | `createElement()` | `React.createElement()` |
+| `defineComponent()` | `createComponent()` | `class extends React.Component` |
+| `updateState()` | `setState()` | `this.setState()` |
+| `onMounted()` | `componentDidMount()` | `componentDidMount()` |
+| `onUnmounted()` | `componentWillUnmount()` | `componentWillUnmount()` |
+| `emit("add")` | `emit("add")` | a callback prop: `props.onAdd()`. `emit()` comes from Vue |
+| `vdom.el` | `vNode.domElement` | `fiber.stateNode` (internal) |
+| `component.elements` | `fiberInstance.domElements` | — |
+| `areNodesEqual()` | `areVNodesEqual()` | same type and same `key` |
+| `createApp().mount()` | `createApp().mount()` | `createRoot().render()` |
 
-## Acknowledgements
+In React, a *Fiber* is an internal node of the work tree, not the component users write. Here, `Fiber` is the class `createComponent()` returns.
 
-Based on the book ["Build a web frontend framework (from scratch)"](https://www.manning.com/books/build-a-frontend-web-framework-from-scratch) by Ángel Sola Orbaiceta and closely follows the concepts and code from his [companion GitHub repository](https://github.com/angelsolaorbaiceta/fe-fwk-book).
+## Tests
+
+```sh
+npm test
+```
+
+- **The book's test suite**, ported to TypeScript (`packages/runtime/src/__tests__`): arrays, diff sequence (with random arrays), node equality, mount, destroy, patch.
+- **Against React** (`vs-react.test.ts`): the same keyed list is rendered by this runtime and by `react-dom`, the same edits are applied to both, and after each edit the DOM must be identical. [fast-check](https://fast-check.dev) generates random lists and edits, including a list inside a fragment that doesn't start at index 0. The tests also record DOM writes per edit: moving the last of five notes to the top takes 2 here and 8 in React.
+- **Regression tests** (`bugs.test.ts`) for the places where this port used to differ from the book.
+
+Known limitation, shared with the book: a component whose fragment becomes empty can't find its place in the parent, so its next children land at the start.
+
+## Run it
+
+Requires Node.js 22 or newer.
+
+```sh
+git clone https://github.com/slimcandy/fe-fwk-ts-react
+cd fe-fwk-ts-react
+npm install
+npm test        # the tests
+npm run dev     # the notes demo at http://localhost:5173
+npm run build   # rebuilds packages/runtime/dist, which is committed
+```
+
+```js
+import { createApp, createComponent, createElement } from "fe-fwk-ts-react";
+
+const Counter = createComponent({
+  state() {
+    return { count: 0 };
+  },
+  render() {
+    const { count } = this.state;
+    return createElement(
+      "button",
+      { on: { click: () => this.setState({ count: count + 1 }) } },
+      [`Clicked ${count} times`]
+    );
+  },
+});
+
+createApp(Counter).mount(document.body);
+```
+
+## Layout
+
+- `packages/runtime`: the framework, its tests, and the built `dist/fe-fwk-ts-react.js`
+- `examples/notes`: the demo (Vite, Tailwind CSS)

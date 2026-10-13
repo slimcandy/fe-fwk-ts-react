@@ -4,12 +4,15 @@
   "main": "index.js",
   "scripts": {
     "test": "npm test -w packages/runtime",
-    "build": "npm run build -w packages/runtime"
+    "build": "npm run build -w packages/runtime",
+    "dev": "npm run dev -w examples/notes",
+    "build:site": "npm run build -w examples/notes"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "workspaces": [
-    "packages/runtime"
+    "packages/runtime",
+    "examples/notes"
   ]
 }
