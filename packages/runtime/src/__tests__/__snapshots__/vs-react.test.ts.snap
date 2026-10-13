@@ -1,0 +1,50 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renders the same DOM as React > add to the end 1`] = `
+{
+  "ours": 1,
+  "react": 1,
+}
+`;
+
+exports[`renders the same DOM as React > add to the top 1`] = `
+{
+  "ours": 1,
+  "react": 1,
+}
+`;
+
+exports[`renders the same DOM as React > edit one 1`] = `
+{
+  "ours": 1,
+  "react": 1,
+}
+`;
+
+exports[`renders the same DOM as React > move last to top 1`] = `
+{
+  "ours": 2,
+  "react": 8,
+}
+`;
+
+exports[`renders the same DOM as React > remove one 1`] = `
+{
+  "ours": 1,
+  "react": 1,
+}
+`;
+
+exports[`renders the same DOM as React > reverse 1`] = `
+{
+  "ours": 8,
+  "react": 8,
+}
+`;
+
+exports[`renders the same DOM as React > same items 1`] = `
+{
+  "ours": 0,
+  "react": 0,
+}
+`;
