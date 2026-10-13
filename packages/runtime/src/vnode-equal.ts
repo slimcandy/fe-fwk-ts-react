@@ -3,6 +3,10 @@ import { VDOMType } from "./types";
 import type { ReactElement } from "./types";
 
 function areVNodesEqual(vNodeA: ReactElement, vNodeB: ReactElement) {
+  if (vNodeA.type !== vNodeB.type) {
+    return false;
+  }
+
   if (
     vNodeA.type === vNodeB.type &&
     vNodeA.type === VDOMType.ELEMENT &&
@@ -37,7 +41,7 @@ function areVNodesEqual(vNodeA: ReactElement, vNodeB: ReactElement) {
     return tagA === tagB && keyA === keyB;
   }
 
-  return false;
+  return true;
 }
 
 export { areVNodesEqual };

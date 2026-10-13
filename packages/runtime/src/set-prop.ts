@@ -3,7 +3,10 @@ import type { DOMProps, FiberProps } from "./types";
 function setProp(domElement: HTMLElement, props: DOMProps | FiberProps) {
   const { class: className, style, ...restAttrs } = props;
 
-  if (typeof className === "string" || Array.isArray(className)) {
+  if (
+    className &&
+    (typeof className === "string" || Array.isArray(className))
+  ) {
     setClass(domElement, className);
   }
 

@@ -208,6 +208,7 @@ function patchElement(
     parentFiber: ComponentInstance | null = null
   ) {
     const { added, removed, updated } = objectsDiff(oldOnEvents, newOnEvents);
+    const listeners: ElementVNode["listeners"] = { ...oldListeners };
 
     for (const domEventName of removed.concat(updated)) {
       if (oldListeners[domEventName]) {
@@ -216,13 +217,12 @@ function patchElement(
           oldListeners[domEventName]
         );
       }
+      delete listeners[domEventName];
     }
-
-    const addedListeners: ElementVNode["listeners"] = {};
 
     for (const eventType of added.concat(updated)) {
       if (newOnEvents[eventType]) {
-        addedListeners[eventType] = attachEventListener(
+        listeners[eventType] = attachEventListener(
           eventType,
           newOnEvents[eventType],
           domElement,
@@ -231,7 +231,7 @@ function patchElement(
       }
     }
 
-    return addedListeners;
+    return listeners;
   }
 }
 
@@ -266,7 +266,7 @@ function patchChildren(
 
   for (const operation of diffSequence) {
     const { index, item, op } = operation;
-    const offset = parentFiber?.offset ?? 0;
+    const offset = computeChildrenOffset(parentDomElement, parentFiber);
 
     switch (op) {
       case ARRAY_DIFF_OP.ADD: {
@@ -284,7 +284,7 @@ function patchChildren(
           parentDomElement instanceof HTMLElement &&
           "originalIndex" in operation
         ) {
-          const oldChild = oldChildren[operation.originalIndex + offset];
+          const oldChild = oldChildren[operation.originalIndex];
           const newChild = newChildren[index];
 
           const elementsToMove =
@@ -302,7 +302,8 @@ function patchChildren(
             );
           }
 
-          const domElementAtTargetPosition = parentDomElement.childNodes[index];
+          const domElementAtTargetPosition =
+            parentDomElement.childNodes[index + offset];
           elementsToMove.forEach((domElement) => {
             parentDomElement.insertBefore(
               domElement,
@@ -328,6 +329,24 @@ function patchChildren(
       }
     }
   }
+}
+
+// A component that renders a fragment shares its host element with siblings,
+// so its children start at `offset` in the host. Only the host's own children
+// are shifted; elements nested inside the component have their own children.
+function computeChildrenOffset(
+  parentDomElement: Node,
+  parentFiber: ComponentInstance | null
+) {
+  if (parentFiber == null) {
+    return 0;
+  }
+
+  if (parentDomElement === parentFiber.hostDOMElement) {
+    return parentFiber.offset;
+  }
+
+  return 0;
 }
 
 export { patchDOM };

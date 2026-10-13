@@ -32,7 +32,7 @@ function destroyDOM(vNode: ReactElement) {
     }
 
     default: {
-      throw new Error("Cannot destroy DOM of type: ", type);
+      throw new Error(`Cannot destroy DOM of type: ${type}`);
     }
   }
 

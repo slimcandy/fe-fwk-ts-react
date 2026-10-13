@@ -1,9 +1,12 @@
 import { ARRAY_DIFF_OP } from "../types";
 
+import { makeCountMap, mapsDiff } from "./maps";
+
 function withoutNulls<T>(children: (T | null | undefined)[]): T[] {
   return children.filter((child) => child != null);
 }
 
+// Duplicates count: ["a", "a"] → ["a"] removes one "a" (the book's errata fix).
 function arraysDiff<T>(
   oldArray: T[],
   newArray: T[]
@@ -11,12 +14,28 @@ function arraysDiff<T>(
   added: T[];
   removed: T[];
 } {
-  return {
-    added: newArray.filter((newArrayItem) => !oldArray.includes(newArrayItem)),
-    removed: oldArray.filter(
-      (oldArrayItem) => !newArray.includes(oldArrayItem)
-    ),
-  };
+  const oldsCount = makeCountMap(oldArray);
+  const newsCount = makeCountMap(newArray);
+  const diff = mapsDiff(oldsCount, newsCount);
+
+  const added = diff.added.flatMap((key) =>
+    Array<T>(newsCount.get(key) ?? 0).fill(key)
+  );
+  const removed = diff.removed.flatMap((key) =>
+    Array<T>(oldsCount.get(key) ?? 0).fill(key)
+  );
+
+  for (const key of diff.updated) {
+    const delta = (newsCount.get(key) ?? 0) - (oldsCount.get(key) ?? 0);
+
+    if (delta > 0) {
+      added.push(...Array<T>(delta).fill(key));
+    } else {
+      removed.push(...Array<T>(-delta).fill(key));
+    }
+  }
+
+  return { added, removed };
 }
 
 interface Operation<T> {

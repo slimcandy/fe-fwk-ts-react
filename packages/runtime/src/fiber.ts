@@ -79,6 +79,10 @@ function createComponent({
       return this.domElements[0];
     }
 
+    get hostDOMElement() {
+      return this.#domElement;
+    }
+
     get offset() {
       if (
         this.#domElement &&
@@ -209,6 +213,7 @@ interface ComponentInstance {
   domElements: (HTMLElement | Text)[];
   firstDOMElement: HTMLElement | Text | undefined;
   offset: number;
+  hostDOMElement: HTMLElement | null;
 
   render(): ReactElement;
   emit(fiberEventName: FiberEventName, actionPayload?: ActionPayload): void;

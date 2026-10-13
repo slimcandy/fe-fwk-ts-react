@@ -9,6 +9,7 @@ export default {
     typescript({
       target: "ESNext",
       lib: ["ESNext", "DOM"],
+      exclude: ["src/__tests__/**"],
     }),
     cleanup(),
   ],

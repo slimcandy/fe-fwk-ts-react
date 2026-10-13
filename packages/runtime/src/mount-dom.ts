@@ -81,14 +81,24 @@ function createDOMElementFromFragmentNode(
   const { children } = vNode;
   vNode.domElement = parentDOMElement;
 
-  children.forEach((child, index) => {
-    mountDOM(
-      child,
-      parentDOMElement,
-      positionIndex ? positionIndex + index : null,
-      parentFiberInstance
-    );
-  });
+  for (const child of children) {
+    mountDOM(child, parentDOMElement, positionIndex, parentFiberInstance);
+
+    if (positionIndex == null) {
+      continue;
+    }
+
+    switch (child.type) {
+      case VDOMType.FRAGMENT:
+        positionIndex += child.children.length;
+        break;
+      case VDOMType.COMPONENT:
+        positionIndex += child.fiberInstance.domElements.length;
+        break;
+      default:
+        positionIndex++;
+    }
+  }
 }
 
 function createDOMElementFromElementNode(
