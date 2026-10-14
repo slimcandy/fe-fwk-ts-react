@@ -100,18 +100,40 @@
           </aside>
         </div>
 
-        <div class="mt-8 grid gap-6 lg:grid-cols-2">
+        <div class="mt-8 rounded-lg bg-white px-4 py-4 shadow-sm sm:px-6 dark:bg-gray-800/50 dark:shadow-none dark:inset-ring dark:inset-ring-white/10">
+          <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+            <p data-title class="text-base font-semibold">1. First render</p>
+            <p class="text-sm text-gray-500 tabular-nums dark:text-gray-400">
+              <code class="font-mono">render()</code> <span data-renders class="font-semibold text-amber-600 dark:text-amber-400">0</span>
+              · DOM writes <span data-writes class="font-semibold text-emerald-600 dark:text-emerald-400">0</span>
+            </p>
+          </div>
+          <label for="step-views" class="sr-only">Step</label>
+          <input id="step-views" data-step type="range" min="0" max="6" step="1" value="0" list="step-marks" class="mt-3 hidden h-6 w-full accent-gray-900 lg:block dark:accent-white" />
+        </div>
+
+        <div class="mt-6 grid gap-6 lg:grid-cols-2">
           <figure class="overflow-hidden rounded-lg bg-gray-950 inset-ring inset-ring-white/10">
-            <figcaption class="border-b border-white/10 px-4 py-3 text-sm font-semibold text-white">
-              Virtual DOM <span class="font-normal text-gray-400">· what render() returned</span>
+            <figcaption class="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
+              <span class="text-sm font-semibold text-white">Each note: instance, props, state, input</span>
+              <!-- Tailwind Plus: Application UI → Navigation → Tabs (in pills) -->
+              <span role="tablist" aria-label="View" class="flex gap-1">
+                <button type="button" role="tab" data-view="table" aria-selected="true" aria-controls="view-table" class="rounded-md px-3 py-1.5 text-sm font-medium text-gray-400 hover:text-gray-200 aria-selected:bg-white/10 aria-selected:text-white">A. Table</button>
+                <button type="button" role="tab" data-view="lines" aria-selected="false" aria-controls="view-lines" class="rounded-md px-3 py-1.5 text-sm font-medium text-gray-400 hover:text-gray-200 aria-selected:bg-white/10 aria-selected:text-white">B. Before → after</button>
+                <button type="button" role="tab" data-view="cards" aria-selected="false" aria-controls="view-cards" class="rounded-md px-3 py-1.5 text-sm font-medium text-gray-400 hover:text-gray-200 aria-selected:bg-white/10 aria-selected:text-white">C. Cards</button>
+              </span>
             </figcaption>
-            <div class="overflow-x-auto"><div id="vdom" class="min-w-max py-3 font-mono text-xs/6 text-gray-300"></div></div>
+            <div class="overflow-x-auto py-3 font-mono text-xs/6 text-gray-300">
+              <div id="view-table" role="tabpanel"></div>
+              <div id="view-lines" role="tabpanel" hidden></div>
+              <div id="view-cards" role="tabpanel" hidden></div>
+            </div>
           </figure>
           <figure class="overflow-hidden rounded-lg bg-gray-950 inset-ring inset-ring-white/10">
             <figcaption class="border-b border-white/10 px-4 py-3 text-sm font-semibold text-white">
               Real DOM <span class="font-normal text-gray-400">· what’s on the page, classes hidden</span>
             </figcaption>
-            <div class="overflow-x-auto"><div id="dom" class="min-w-max py-3 font-mono text-xs/6 text-gray-300"></div></div>
+            <div class="max-h-[32rem] overflow-auto"><div id="dom" class="min-w-max py-3 font-mono text-xs/6 text-gray-300"></div></div>
           </figure>
         </div>
       </section>

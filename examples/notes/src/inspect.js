@@ -1,9 +1,5 @@
-// Two read-only views, drawn outside the app so drawing them is never counted
-// as a DOM write of the app:
-// - the virtual DOM: the objects the components' render() returned
-// - the real DOM: the nodes on the page, like the Elements panel in DevTools
-
-import { outputOf } from "./tracker.js";
+// The real DOM: the nodes on the page, like the Elements panel in DevTools.
+// Drawn outside the app, so drawing it is never counted as a DOM write.
 
 const TEXT = 3;
 const ELEMENT = 1;
@@ -33,58 +29,6 @@ function quote(text) {
   return `"${text}"`;
 }
 
-// ---- Virtual DOM ----
-
-export function drawVirtualDOM(container, app) {
-  const rows = new Map();
-  const lines = [];
-
-  function component(instance, vNode, depth, index) {
-    const { name, vNode: output } = outputOf(instance);
-    const key = vNode?.props?.key;
-    const parts = [[`<${name}`, NAME]];
-    if (key != null) {
-      parts.push([" key=", DIM], [quote(key), KEY]);
-    } else if (index != null) {
-      parts.push([` key: none, position ${index + 1}`, DIM]);
-    }
-    parts.push([">", NAME]);
-    if (instance.props.note) {
-      parts.push(["  props.note.text=", DIM], [quote(instance.props.note.text), STRING]);
-    }
-    if (instance.state.mountedAs) {
-      parts.push(["  state.mountedAs=", DIM], [quote(instance.state.mountedAs), STRING]);
-    }
-    const line = row(depth, parts);
-    rows.set(instance, line);
-    lines.push(line);
-    node(output, depth + 1);
-  }
-
-  function node(vNode, depth, index) {
-    if (vNode.fiberInstance) {
-      component(vNode.fiberInstance, vNode, depth, index);
-      return;
-    }
-    if (vNode.tag === undefined) {
-      lines.push(row(depth, [[quote(vNode.value), STRING]]));
-      return;
-    }
-    const [only] = vNode.children;
-    if (vNode.children.length === 1 && only.tag === undefined && !only.fiberInstance) {
-      lines.push(row(depth, [[`<${vNode.tag}>`, TAG], [quote(only.value), STRING], [`</${vNode.tag}>`, TAG]]));
-      return;
-    }
-    lines.push(row(depth, [[`<${vNode.tag}>`, TAG]]));
-    const isList = vNode.tag === "ul";
-    vNode.children.forEach((child, i) => node(child, depth + 1, isList ? i : undefined));
-  }
-
-  component(app, null, 0);
-  container.replaceChildren(...lines);
-  return rows;
-}
-
 // ---- Real DOM ----
 
 export function drawDOM(container, root) {
@@ -102,6 +46,17 @@ export function drawDOM(container, root) {
       return;
     }
     const tag = domNode.localName;
+    if (tag === "input") {
+      // `value` is a property, not an attribute: DevTools wouldn't show it.
+      const line = row(depth, [
+        ["<input>", TAG],
+        ["  .value=", DIM],
+        [quote(domNode.value), domNode.value ? STRING : DIM],
+      ]);
+      rows.set(domNode, line);
+      lines.push(line);
+      return;
+    }
     const [only] = domNode.childNodes;
     if (domNode.childNodes.length === 1 && only.nodeType === TEXT) {
       const line = row(depth, [[`<${tag}>`, TAG], [only.data, "text-gray-100"], [`</${tag}>`, TAG]]);

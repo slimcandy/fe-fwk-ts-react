@@ -14,7 +14,7 @@ export const STEPS = [
   {
     title: "First render",
     notes: [milk, mum, bike],
-    note: "Every component runs render() once. The framework builds the whole tree in memory, then puts it on the page with a single DOM write.",
+    note: "Every component runs render() once. The framework builds the whole tree in memory, then puts it on the page with a single DOM write. Then the demo types “my draft” into the first note’s input: that text lives only in the DOM, in no props and no state.",
   },
   {
     title: "Edit the second note",
@@ -40,9 +40,9 @@ export const STEPS = [
     title: "Add a note to the top",
     notes: [book, milk, momEdited, bikeSaved],
     keyed:
-      "With keys, the framework sees the same notes, one place lower, and a new one on top: one new <li>. The other notes keep their props and don't even render.",
+      "With keys, the framework sees the same notes, one place lower, and a new one on top: one new <li>. The other notes keep their props and don't even render. “my draft” moves down with its note: its <input> is the same DOM node.",
     unkeyed:
-      "Without keys, notes are matched by position. Position 1 keeps its component and gets the new note's props, position 2 gets the old first note's props, and so on; a new <li> is added at the end. The page reads correctly, but look at “mounted as”: state stayed with the position. The framework did exactly what the tree said: update three, add one at the end. Reading it as “insert at the top” is our interpretation.",
+      "Without keys, notes are matched by position. Position 1 keeps its component and gets the new note's props, position 2 gets the old first note's props, and so on; a new <li> is added at the end. The page reads correctly, but look at “mounted as”: state stayed with the position, and so did “my draft”: the first <input> is the same DOM node, now next to another note. The framework did exactly what the tree said: update three, add one at the end. Reading it as “insert at the top” is our interpretation.",
   },
   {
     title: "Remove the first note",

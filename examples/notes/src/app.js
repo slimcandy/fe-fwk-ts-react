@@ -1,6 +1,7 @@
 import { createComponent, createElement } from "fe-fwk-ts-react";
 
 import { rendered } from "./tracker.js";
+import { idOf } from "./views.js";
 
 const DAYS = { Mon: "Monday", Tue: "Tuesday", Wed: "Wednesday" };
 
@@ -13,6 +14,7 @@ const Note = createComponent({
   },
 
   render() {
+    idOf(this);
     const { note } = this.props;
     const day = DAYS[note.updated.slice(0, 3)];
 
@@ -21,15 +23,24 @@ const Note = createComponent({
       "Note",
       createElement(
         "li",
-        { class: "grid gap-x-4 gap-y-1 px-4 py-3 sm:grid-cols-[minmax(0,1fr)_auto]" },
+        { class: "grid gap-x-4 gap-y-1 px-4 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center" },
         [
           createElement("p", { class: "text-sm/6 font-medium text-gray-900 dark:text-white" }, [note.text]),
           createElement("p", { class: "text-xs/6 text-gray-500 sm:text-right dark:text-gray-400" }, [
             `Edited on ${day}`,
           ]),
-          createElement("p", { class: "font-mono text-xs/5 text-gray-500 sm:col-span-2 dark:text-gray-400" }, [
+          createElement("p", { class: "font-mono text-xs/5 text-gray-500 dark:text-gray-400" }, [
             `mounted as: ${this.state.mountedAs}`,
           ]),
+          // A native field: what's typed in it lives only in the DOM, in no
+          // props and no state. `inert`: the demo types, not the visitor.
+          createElement("input", {
+            type: "text",
+            placeholder: "empty input",
+            inert: "",
+            class:
+              "w-full rounded-md bg-white px-2 py-0.5 font-mono text-xs/5 text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 sm:w-40 dark:bg-white/5 dark:text-white dark:outline-white/10",
+          }),
         ]
       )
     );

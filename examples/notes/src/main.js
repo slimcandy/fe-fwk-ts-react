@@ -1,19 +1,37 @@
 import { createApp } from "fe-fwk-ts-react";
 
 import { App, currentApp, setNotes } from "./app.js";
-import { drawDOM, drawVirtualDOM } from "./inspect.js";
+import { drawDOM } from "./inspect.js";
 import { STEPS, explain } from "./scenario.js";
 import { flashRender, flashWrite, setSilent, watch } from "./tracker.js";
+import { drawBeforeAfter, drawCards, drawTable, resetIds, snapshot } from "./views.js";
 import "./style.css";
 
 const root = document.getElementById("root");
 const sliders = document.querySelectorAll("[data-step]");
 const keyBox = document.getElementById("use-keys");
-const virtualView = document.getElementById("vdom");
 const domView = document.getElementById("dom");
+const views = {
+  table: [document.getElementById("view-table"), drawTable],
+  lines: [document.getElementById("view-lines"), drawBeforeAfter],
+  cards: [document.getElementById("view-cards"), drawCards],
+};
 
 let app;
 let step = 0;
+let before = [];
+
+// The visitor doesn't type: the demo types into the first note's <input>.
+function typeDraft() {
+  root.querySelector("input").value = "my draft";
+}
+
+function mount(keyed) {
+  resetIds();
+  app = createApp(App, { notes: STEPS[0].notes, keyed });
+  app.mount(root);
+  typeDraft();
+}
 
 // Shows step `target`: remounts the app, silently replays the steps before it,
 // then applies the last one for real, so the panel always shows one step.
@@ -24,17 +42,17 @@ function show(target) {
   setSilent(true);
   app?.unmount();
   if (step > 0) {
-    app = createApp(App, { notes: STEPS[0].notes, keyed });
-    app.mount(root);
+    mount(keyed);
     for (let i = 1; i < step; i++) {
       setNotes(STEPS[i].notes);
     }
+    before = snapshot(currentApp());
     setSilent(false);
     setNotes(STEPS[step].notes);
   } else {
+    before = [];
     setSilent(false);
-    app = createApp(App, { notes: STEPS[0].notes, keyed });
-    app.mount(root);
+    mount(keyed);
   }
 
   for (const slider of sliders) {
@@ -68,14 +86,16 @@ function report({ renders, writes }) {
     "Nothing changed on the page."
   );
 
-  // The two views, redrawn for this step, then the flashes.
-  const virtualRows = drawVirtualDOM(virtualView, currentApp());
+  // The views, redrawn for this step, then the flashes.
+  const after = snapshot(currentApp());
+  for (const [container, draw] of Object.values(views)) {
+    draw(container, before, after);
+  }
   const domRows = drawDOM(domView, root);
 
   for (const { component } of renders) {
     const element = component.firstDOMElement;
     flashRender(element instanceof HTMLElement ? element : null);
-    flashRender(virtualRows.get(component));
   }
   for (const { node } of writes) {
     flashWrite(node instanceof HTMLElement ? node : node.parentElement);
@@ -101,4 +121,16 @@ for (const slider of sliders) {
   slider.addEventListener("input", () => show(Number(slider.value)));
 }
 keyBox.addEventListener("change", () => show(step));
+
+// Tabs: three ways to show the same step.
+const tabs = document.querySelectorAll("[data-view]");
+for (const tab of tabs) {
+  tab.addEventListener("click", () => {
+    for (const other of tabs) {
+      other.setAttribute("aria-selected", String(other === tab));
+      views[other.dataset.view][0].hidden = other !== tab;
+    }
+    show(step);
+  });
+}
 show(0);
