@@ -3,7 +3,7 @@ import { createApp } from "fe-fwk-ts-react";
 import { App, currentApp, setNotes } from "./app.js";
 import { drawDOM } from "./inspect.js";
 import { STEPS, explain } from "./scenario.js";
-import { flashRender, flashWrite, setSilent, watch } from "./tracker.js";
+import { flashRender, flashWrite, setQuiet, setSilent, watch } from "./tracker.js";
 import { drawTable, resetIds, snapshot } from "./views.js";
 import "./style.css";
 
@@ -56,7 +56,7 @@ function show(target) {
     slider.setAttribute("aria-valuetext", `${step + 1}. ${STEPS[step].title}`);
     // The thumb's tooltip shows the step, as macOS does for a slider value.
     slider.title = `${step + 1}. ${STEPS[step].title}`;
-    slider.style.setProperty("--fill", `calc(5px + ${step / (STEPS.length - 1)} * (100% - 10px))`);
+    slider.style.setProperty("--fill", `calc(7px + ${step / (STEPS.length - 1)} * (100% - 14px))`);
   }
   for (const mark of document.querySelectorAll("[data-mark]")) {
     mark.setAttribute("aria-current", String(Number(mark.dataset.mark) === step));
@@ -86,13 +86,13 @@ function report({ renders, writes }) {
 }
 
 // Tick marks and labels under each slider, placed under the step they name:
-// step i sits at 5px + i/6 of the track (the thumb is 10px wide). On phones
+// step i sits at 7px + i/5 of the track (the thumb is 14px wide). On phones
 // the labels are tilted 45° so they don't overlap.
 function drawMarks(container) {
   const last = STEPS.length - 1;
   container.replaceChildren(
     ...STEPS.flatMap(({ label }, index) => {
-      const left = `calc(5px + ${index / last} * (100% - 10px))`;
+      const left = `calc(7px + ${index / last} * (100% - 14px))`;
 
       const tick = document.createElement("span");
       tick.setAttribute("aria-hidden", "true");
@@ -103,18 +103,9 @@ function drawMarks(container) {
       mark.type = "button";
       mark.dataset.mark = String(index);
       mark.tabIndex = -1;
-      // "Edit 2nd" → "Edit 2<sup>nd</sup>"
-      for (const part of label.split(/(?<=\d)(st|nd|rd|th)\b/)) {
-        if (/^(st|nd|rd|th)$/.test(part)) {
-          const sup = document.createElement("sup");
-          sup.textContent = part;
-          mark.append(sup);
-        } else {
-          mark.append(part);
-        }
-      }
+      mark.textContent = label;
       const align =
-        index === 0 ? "sm:-translate-x-[5px]" : index === last ? "sm:-translate-x-[calc(100%-5px)]" : "sm:-translate-x-1/2";
+        index === 0 ? "sm:-translate-x-[7px]" : index === last ? "sm:-translate-x-[calc(100%-7px)]" : "sm:-translate-x-1/2";
       mark.className = `absolute top-2.5 origin-top-left rotate-45 cursor-pointer text-xs/4 whitespace-nowrap text-gray-500 hover:text-gray-900 aria-[current=true]:font-semibold aria-[current=true]:text-gray-900 sm:rotate-0 dark:text-gray-400 dark:hover:text-white dark:aria-[current=true]:text-white ${align}`;
       mark.style.left = left;
       mark.addEventListener("click", () => show(index));
@@ -122,6 +113,59 @@ function drawMarks(container) {
     })
   );
 }
+
+// The notes, the table and the real DOM are as tall as their tallest step,
+// so the page doesn't jump while the slider moves. Measured by showing every
+// step once, with and without keys, quietly.
+function nextTask() {
+  return new Promise((resolve) => setTimeout(resolve));
+}
+
+async function steadyHeights() {
+  const blocks = [...document.querySelectorAll("[data-steady]")];
+  const tallest = new Map(blocks.map((block) => [block, 0]));
+  const shown = { step, keyed: keyBox.checked };
+
+  setQuiet(true);
+  for (const block of blocks) {
+    block.style.minHeight = "";
+  }
+  for (const keyed of [true, false]) {
+    keyBox.checked = keyed;
+    for (let i = 0; i < STEPS.length; i++) {
+      show(i);
+      await nextTask();
+      for (const block of blocks) {
+        tallest.set(block, Math.max(tallest.get(block), block.offsetHeight));
+      }
+    }
+  }
+  // When the notes and the table sit side by side, both get the same height.
+  const figure = table.closest("figure");
+  if (figure.offsetTop === root.offsetTop) {
+    const pair = Math.max(tallest.get(root), tallest.get(figure));
+    tallest.set(root, pair);
+    tallest.set(figure, pair);
+  }
+  for (const block of blocks) {
+    block.style.minHeight = `${tallest.get(block)}px`;
+  }
+  keyBox.checked = shown.keyed;
+  show(shown.step);
+  await nextTask();
+  setQuiet(false);
+}
+
+let resizeTimer;
+let lastWidth = innerWidth;
+addEventListener("resize", () => {
+  if (innerWidth === lastWidth) {
+    return;
+  }
+  lastWidth = innerWidth;
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(steadyHeights, 200);
+});
 
 watch(root, report);
 for (const container of document.querySelectorAll("[data-marks]")) {
@@ -131,4 +175,4 @@ for (const slider of sliders) {
   slider.addEventListener("input", () => show(Number(slider.value)));
 }
 keyBox.addEventListener("change", () => show(step));
-show(0);
+steadyHeights().then(() => show(0));

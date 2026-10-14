@@ -21,6 +21,7 @@ const outputs = new WeakMap();
 let renders = [];
 let scheduled = false;
 let silent = false;
+let quiet = false;
 let observer;
 let records = [];
 let onReport = () => {};
@@ -46,6 +47,17 @@ export function setSilent(value) {
   records = [];
   renders = [];
   silent = value;
+}
+
+// While quiet, nothing flashes and nothing logs: the page uses it to measure
+// every step once, on load.
+export function setQuiet(value) {
+  quiet = value;
+}
+
+// Whether what happens now is shown to the visitor.
+export function isShown() {
+  return !silent && !quiet;
 }
 
 export function watch(root, callback) {
@@ -79,6 +91,9 @@ function flush() {
 }
 
 export function flashRender(element) {
+  if (quiet) {
+    return;
+  }
   element?.animate(
     [
       { outline: `3px solid ${color("--color-render")}`, outlineOffset: "-3px" },
@@ -88,7 +103,17 @@ export function flashRender(element) {
   );
 }
 
+export function flashChange(element) {
+  if (quiet) {
+    return;
+  }
+  element?.animate([{ backgroundColor: color("--color-change") }, { backgroundColor: "transparent" }], FLASH);
+}
+
 export function flashWrite(element) {
+  if (quiet) {
+    return;
+  }
   element?.animate([{ backgroundColor: color("--color-write") }, { backgroundColor: "transparent" }], FLASH);
 }
 

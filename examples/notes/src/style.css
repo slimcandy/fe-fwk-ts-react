@@ -21,6 +21,7 @@
 @theme static {
   --color-render: oklch(0.8 0.2 75);
   --color-write: oklch(0.82 0.22 160);
+  --color-change: oklch(0.7 0.25 300);
 }
 
 @theme {
@@ -29,40 +30,40 @@
 
 /* The step slider, after the macOS guidelines for a linear slider with tick
    marks: a narrow lozenge thumb, the track filled with the accent colour up to
-   the thumb, tick marks with labels (drawn by main.js). The thumb is 10px wide,
-   so step i sits at 5px + i/6 of the rest; --fill holds that position. */
+   the thumb, tick marks with labels (drawn by main.js). The thumb is 14px wide,
+   so step i sits at 7px + i/5 of the rest; --fill holds that position. */
 .range {
-  --fill: 5px;
+  --fill: 7px;
   --track: var(--color-gray-300);
   --accent: var(--color-blue-500, oklch(62.3% 0.214 259.815));
   --thumb: var(--color-white);
   --thumb-ring: oklch(0 0 0 / 0.25);
   appearance: none;
-  height: 1.25rem;
+  height: 1.75rem;
   background: transparent;
-  cursor: pointer;
+  cursor: ew-resize;
 }
 .range::-webkit-slider-runnable-track {
-  height: 4px;
+  height: 6px;
   border-radius: 9999px;
   background: linear-gradient(to right, var(--accent) var(--fill), var(--track) var(--fill));
 }
 .range::-moz-range-track {
-  height: 4px;
+  height: 6px;
   border-radius: 9999px;
   background: var(--track);
 }
 .range::-moz-range-progress {
-  height: 4px;
+  height: 6px;
   border-radius: 9999px;
   background: var(--accent);
 }
 .range::-webkit-slider-thumb {
   appearance: none;
-  width: 10px;
-  height: 20px;
-  margin-top: -8px;
-  border-radius: 5px;
+  width: 14px;
+  height: 28px;
+  margin-top: -11px;
+  border-radius: 7px;
   background: var(--thumb);
   box-shadow:
     0 0 0 0.5px var(--thumb-ring),
@@ -70,10 +71,10 @@
 }
 .range::-moz-range-thumb {
   box-sizing: border-box;
-  width: 10px;
-  height: 20px;
+  width: 14px;
+  height: 28px;
   border: none;
-  border-radius: 5px;
+  border-radius: 7px;
   background: var(--thumb);
   box-shadow:
     0 0 0 0.5px var(--thumb-ring),

@@ -1,6 +1,6 @@
 import { createComponent, createElement } from "fe-fwk-ts-react";
 
-import { rendered } from "./tracker.js";
+import { isShown, rendered } from "./tracker.js";
 import { idOf } from "./views.js";
 
 // One note, read-only. `mountedAs` is state, set once when the component is
@@ -35,10 +35,13 @@ const Note = createComponent({
 });
 
 // No props, no state: it renders when mounted and never again, so its
-// console.log prints once per mount.
+// console.log prints once per mount. (Not while the page replays steps in the
+// background.)
 const Static = createComponent({
   render() {
-    console.log("Static: render()");
+    if (isShown()) {
+      console.log("Static: render()");
+    }
     return rendered(
       this,
       "Static",

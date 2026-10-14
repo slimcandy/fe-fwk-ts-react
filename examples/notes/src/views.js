@@ -2,7 +2,7 @@
 // "props / useState / input" table. It compares snapshots taken before and
 // after a step; a changed cell shows its old value struck through.
 
-import { outputOf } from "./tracker.js";
+import { flashChange, outputOf } from "./tracker.js";
 
 // Note instances are numbered in mount order; the table doesn't show the
 // numbers, it uses them to tell which component was unmounted.
@@ -59,8 +59,11 @@ function el(tag, className, ...children) {
   return element;
 }
 
+// One line per value: long texts end with "…", the full text is in the tooltip.
 function value(text, className = "") {
-  return el("span", `block ${className}`, text === "" ? "—" : text);
+  const span = el("span", `block max-w-[11ch] truncate ${className}`, text === "" ? "—" : text);
+  span.title = text;
+  return span;
 }
 
 function quoted(text) {
@@ -79,6 +82,7 @@ export function drawTable(container, before, after) {
     )
   );
 
+  const changed = [];
   const rows = after.map((row, index) => {
     const old = before[index];
     const cells = [
@@ -89,20 +93,24 @@ export function drawTable(container, before, after) {
       { text: quoted(row.input), then: old && quoted(old.input), className: "text-sky-300" },
     ];
     const isNew = before.length > 0 && old == null;
+    const tr = el("tr", isNew ? "bg-emerald-400/10" : "");
+    if (isNew) {
+      changed.push(tr);
+    }
 
-    return el(
-      "tr",
-      isNew ? "bg-emerald-400/10" : "",
+    tr.append(
       ...cells.map(({ text, then, className = "" }, column) => {
         const td = el("td", CELL, value(text, className));
         if (column === 0 && isNew) {
           td.append(value("new", "text-emerald-300"));
         } else if (column >= 2 && old != null && then !== text) {
           td.append(value(then, OLD));
+          changed.push(td);
         }
         return td;
       })
     );
+    return tr;
   });
 
   const removed = before
@@ -112,6 +120,8 @@ export function drawTable(container, before, after) {
       td.colSpan = 5;
       return el("tr", "", td);
     });
+
+  queueMicrotask(() => changed.forEach(flashChange));
 
   container.replaceChildren(
     el(
