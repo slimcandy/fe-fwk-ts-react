@@ -27,67 +27,67 @@
   --font-mono: "MonoLisa", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
-/* The step slider: the same thumb size in every browser, so the step labels
-   can be placed under the steps. */
+/* The step slider, after the macOS guidelines for a linear slider with tick
+   marks: a narrow lozenge thumb, the track filled with the accent colour up to
+   the thumb, tick marks with labels (drawn by main.js). The thumb is 10px wide,
+   so step i sits at 5px + i/6 of the rest; --fill holds that position. */
 .range {
+  --fill: 5px;
+  --track: var(--color-gray-300);
+  --accent: var(--color-blue-500, oklch(62.3% 0.214 259.815));
+  --thumb: var(--color-white);
+  --thumb-ring: oklch(0 0 0 / 0.25);
   appearance: none;
-  height: 1.5rem;
+  height: 1.25rem;
   background: transparent;
   cursor: pointer;
 }
 .range::-webkit-slider-runnable-track {
   height: 4px;
   border-radius: 9999px;
-  background: var(--color-gray-300);
+  background: linear-gradient(to right, var(--accent) var(--fill), var(--track) var(--fill));
 }
 .range::-moz-range-track {
   height: 4px;
   border-radius: 9999px;
-  background: var(--color-gray-300);
+  background: var(--track);
+}
+.range::-moz-range-progress {
+  height: 4px;
+  border-radius: 9999px;
+  background: var(--accent);
 }
 .range::-webkit-slider-thumb {
   appearance: none;
-  width: 20px;
+  width: 10px;
   height: 20px;
   margin-top: -8px;
-  border: 3px solid var(--color-white);
-  border-radius: 9999px;
-  background: var(--color-gray-900);
-  box-shadow: 0 0 0 1px var(--color-gray-900);
+  border-radius: 5px;
+  background: var(--thumb);
+  box-shadow:
+    0 0 0 0.5px var(--thumb-ring),
+    0 1px 2px oklch(0 0 0 / 0.3);
 }
 .range::-moz-range-thumb {
   box-sizing: border-box;
-  width: 20px;
+  width: 10px;
   height: 20px;
-  border: 3px solid var(--color-white);
-  border-radius: 9999px;
-  background: var(--color-gray-900);
-  box-shadow: 0 0 0 1px var(--color-gray-900);
+  border: none;
+  border-radius: 5px;
+  background: var(--thumb);
+  box-shadow:
+    0 0 0 0.5px var(--thumb-ring),
+    0 1px 2px oklch(0 0 0 / 0.3);
 }
 .range:focus-visible {
-  outline: 2px solid var(--color-gray-900);
-  outline-offset: 4px;
+  outline: 3px solid color-mix(in oklch, var(--accent) 50%, transparent);
+  outline-offset: 3px;
   border-radius: 4px;
 }
-/* Separate rules: a selector list with an unknown pseudo-element is dropped. */
 @media (prefers-color-scheme: dark) {
-  .range::-webkit-slider-runnable-track {
-    background: var(--color-gray-700, oklch(37.3% 0.034 259.733));
-  }
-  .range::-moz-range-track {
-    background: var(--color-gray-700, oklch(37.3% 0.034 259.733));
-  }
-  .range::-webkit-slider-thumb {
-    border-color: var(--color-gray-900);
-    background: var(--color-white);
-    box-shadow: 0 0 0 1px var(--color-white);
-  }
-  .range::-moz-range-thumb {
-    border-color: var(--color-gray-900);
-    background: var(--color-white);
-    box-shadow: 0 0 0 1px var(--color-white);
-  }
-  .range:focus-visible {
-    outline-color: var(--color-white);
+  .range {
+    --track: var(--color-gray-700, oklch(37.3% 0.034 259.733));
+    --thumb: var(--color-gray-200, oklch(92.8% 0.006 264.531));
+    --thumb-ring: oklch(0 0 0 / 0.6);
   }
 }

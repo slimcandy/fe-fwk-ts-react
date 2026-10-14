@@ -27,7 +27,7 @@ export const STEPS = [
     title: "Autosave touches the third note",
     label: "Autosave 3rd",
     notes: [milk, momEdited, bikeSaved],
-    note: "Its `updated` time changed from 09:31 to 09:47, a prop the note doesn't show. So it renders again, a console.log in its render() would print, and the DOM doesn't change: the new tree is the same as the old one.",
+    note: "Its “updated” time changed from 09:31 to 09:47, a prop the note doesn't show. So it renders again, a console.log in its render() would print, and the DOM doesn't change: the new tree is the same as the old one.",
   },
   {
     title: "Add a note to the end",

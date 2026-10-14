@@ -40,36 +40,9 @@
       <section id="demo" aria-labelledby="demo-title" class="mt-12 scroll-mt-8 sm:mt-16">
         <h2 id="demo-title" class="sr-only">Demo</h2>
 
-        <!-- Line 1: the steps, keys, the two counts, the legend. -->
-        <div class="rounded-lg bg-white px-4 py-4 shadow-sm sm:px-6 dark:bg-gray-800/50 dark:shadow-none dark:inset-ring dark:inset-ring-white/10">
-          <label for="step-top" class="sr-only">Step</label>
-            <div class="max-sm:mr-12">
-              <input id="step-top" data-step type="range" min="0" max="6" step="1" value="0" class="range w-full" />
-              <div data-marks class="relative mt-1 h-20 sm:h-6"></div>
-            </div>
-          <div class="mt-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-t border-gray-200 pt-4 dark:border-white/10">
-            <!-- Tailwind Plus: Application UI → Forms → Checkboxes -->
-            <div class="flex gap-3">
-              <div class="flex h-6 shrink-0 items-center">
-                <div class="group grid size-4 grid-cols-1">
-                  <input id="use-keys" type="checkbox" checked aria-describedby="use-keys-hint" class="col-start-1 row-start-1 appearance-none rounded-sm border border-gray-300 bg-white checked:border-gray-900 checked:bg-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 dark:border-white/10 dark:bg-white/5 dark:checked:border-white dark:checked:bg-white forced-colors:appearance-auto" />
-                  <svg viewBox="0 0 14 14" fill="none" class="pointer-events-none col-start-1 row-start-1 size-3.5 self-center justify-self-center stroke-white opacity-0 group-has-checked:opacity-100 dark:stroke-gray-900">
-                    <path d="M3 8L6 11L11 3.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                </div>
-              </div>
-              <div class="text-sm/6">
-                <label for="use-keys" class="inline-block py-0.5 font-medium">Use keys</label>
-                <span id="use-keys-hint" class="text-gray-500 dark:text-gray-400"><code class="font-mono text-xs">key: note.id</code>, matters in the last two steps</span>
-              </div>
-            </div>
-            <p class="font-mono text-sm tabular-nums" aria-live="polite">
-              render() <span data-renders class="font-semibold text-amber-600 dark:text-amber-400">0</span>
-              <span class="text-gray-400">·</span>
-              DOM writes <span data-writes class="font-semibold text-emerald-600 dark:text-emerald-400">0</span>
-            </p>
-          </div>
-          <p data-note class="mt-3 max-w-4xl text-sm/6 text-gray-700 dark:text-gray-300"></p>
+        <!-- Line 0: what this step shows, and how to read the flashes. -->
+        <div class="mb-6">
+          <p data-note aria-live="polite" class="max-w-4xl text-sm/6 text-gray-700 dark:text-gray-300"></p>
           <p class="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-xs/5 text-gray-600 dark:text-gray-400">
             <span class="font-semibold text-gray-900 dark:text-white">Legend:</span>
             <span class="inline-flex items-center gap-2">
@@ -85,6 +58,39 @@
               value before this step
             </span>
           </p>
+        </div>
+
+        <!-- Line 1: the steps, keys and the two counts. -->
+        <div class="rounded-lg bg-white px-4 py-4 shadow-sm sm:px-6 dark:bg-gray-800/50 dark:shadow-none dark:inset-ring dark:inset-ring-white/10">
+          <div class="flex items-start gap-4">
+            <label for="step-top" class="shrink-0 py-0.5 text-sm/5 font-medium">Step:</label>
+            <div class="min-w-0 flex-1 max-sm:mr-10">
+              <input id="step-top" data-step type="range" min="0" max="6" step="1" value="0" class="range w-full" />
+              <div data-marks class="relative h-20 sm:h-8"></div>
+            </div>
+          </div>
+          <div class="mt-1 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+            <!-- Tailwind Plus: Application UI → Forms → Checkboxes -->
+            <div class="flex gap-3">
+              <div class="flex h-6 shrink-0 items-center">
+                <div class="group grid size-4 grid-cols-1">
+                  <input id="use-keys" type="checkbox" checked aria-describedby="use-keys-hint" class="col-start-1 row-start-1 appearance-none rounded-sm border border-gray-300 bg-white checked:border-gray-900 checked:bg-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 dark:border-white/10 dark:bg-white/5 dark:checked:border-white dark:checked:bg-white forced-colors:appearance-auto" />
+                  <svg viewBox="0 0 14 14" fill="none" class="pointer-events-none col-start-1 row-start-1 size-3.5 self-center justify-self-center stroke-white opacity-0 group-has-checked:opacity-100 dark:stroke-gray-900">
+                    <path d="M3 8L6 11L11 3.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </div>
+              </div>
+              <div class="text-sm/6">
+                <label for="use-keys" class="inline-block py-0.5 font-medium">Use keys</label>
+                <span id="use-keys-hint" class="text-gray-500 dark:text-gray-400"><code class="font-mono text-xs">key: note.id</code>, matters in the last two steps</span>
+              </div>
+            </div>
+            <p class="font-mono text-sm tabular-nums">
+              render() <span data-renders class="font-semibold text-amber-600 dark:text-amber-400">0</span>
+              <span class="text-gray-400">·</span>
+              DOM writes <span data-writes class="font-semibold text-emerald-600 dark:text-emerald-400">0</span>
+            </p>
+          </div>
         </div>
 
         <!-- Line 2: the table and the notes. -->
@@ -108,11 +114,13 @@
 
         <!-- Line 4: the steps again, next to the real DOM. -->
         <div class="mt-6 rounded-lg bg-white px-4 py-4 shadow-sm sm:px-6 dark:bg-gray-800/50 dark:shadow-none dark:inset-ring dark:inset-ring-white/10">
-          <label for="step-bottom" class="sr-only">Step</label>
-            <div class="max-sm:mr-12">
+          <div class="flex items-start gap-4">
+            <label for="step-bottom" class="shrink-0 py-0.5 text-sm/5 font-medium">Step:</label>
+            <div class="min-w-0 flex-1 max-sm:mr-10">
               <input id="step-bottom" data-step type="range" min="0" max="6" step="1" value="0" class="range w-full" />
-              <div data-marks class="relative mt-1 h-20 sm:h-6"></div>
+              <div data-marks class="relative h-20 sm:h-8"></div>
             </div>
+          </div>
         </div>
       </section>
 

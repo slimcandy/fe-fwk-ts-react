@@ -54,6 +54,9 @@ function show(target) {
   for (const slider of sliders) {
     slider.value = String(step);
     slider.setAttribute("aria-valuetext", `${step + 1}. ${STEPS[step].title}`);
+    // The thumb's tooltip shows the step, as macOS does for a slider value.
+    slider.title = `${step + 1}. ${STEPS[step].title}`;
+    slider.style.setProperty("--fill", `calc(5px + ${step / (STEPS.length - 1)} * (100% - 10px))`);
   }
   for (const mark of document.querySelectorAll("[data-mark]")) {
     mark.setAttribute("aria-current", String(Number(mark.dataset.mark) === step));
@@ -82,24 +85,40 @@ function report({ renders, writes }) {
   }
 }
 
-// Step labels under each slider, placed under the step they name. The thumb
-// is 20px wide (style.css), so step i sits at 10px + i/6 of the rest. On
-// phones the labels are tilted 45° so they don't overlap.
+// Tick marks and labels under each slider, placed under the step they name:
+// step i sits at 5px + i/6 of the track (the thumb is 10px wide). On phones
+// the labels are tilted 45° so they don't overlap.
 function drawMarks(container) {
   const last = STEPS.length - 1;
   container.replaceChildren(
-    ...STEPS.map(({ label }, index) => {
+    ...STEPS.flatMap(({ label }, index) => {
+      const left = `calc(5px + ${index / last} * (100% - 10px))`;
+
+      const tick = document.createElement("span");
+      tick.setAttribute("aria-hidden", "true");
+      tick.className = "absolute top-0 h-1.5 w-px -translate-x-1/2 bg-gray-400 dark:bg-gray-500";
+      tick.style.left = left;
+
       const mark = document.createElement("button");
       mark.type = "button";
       mark.dataset.mark = String(index);
-      mark.textContent = label;
       mark.tabIndex = -1;
+      // "Edit 2nd" → "Edit 2<sup>nd</sup>"
+      for (const part of label.split(/(?<=\d)(st|nd|rd|th)\b/)) {
+        if (/^(st|nd|rd|th)$/.test(part)) {
+          const sup = document.createElement("sup");
+          sup.textContent = part;
+          mark.append(sup);
+        } else {
+          mark.append(part);
+        }
+      }
       const align =
-        index === 0 ? "sm:-translate-x-[10px]" : index === last ? "sm:-translate-x-[calc(100%-10px)]" : "sm:-translate-x-1/2";
-      mark.className = `absolute top-0 origin-top-left rotate-45 text-xs/4 whitespace-nowrap text-gray-500 hover:text-gray-900 aria-[current=true]:font-semibold aria-[current=true]:text-gray-900 sm:rotate-0 dark:text-gray-400 dark:hover:text-white dark:aria-[current=true]:text-white ${align}`;
-      mark.style.left = `calc(10px + ${index / last} * (100% - 20px))`;
+        index === 0 ? "sm:-translate-x-[5px]" : index === last ? "sm:-translate-x-[calc(100%-5px)]" : "sm:-translate-x-1/2";
+      mark.className = `absolute top-2.5 origin-top-left rotate-45 cursor-pointer text-xs/4 whitespace-nowrap text-gray-500 hover:text-gray-900 aria-[current=true]:font-semibold aria-[current=true]:text-gray-900 sm:rotate-0 dark:text-gray-400 dark:hover:text-white dark:aria-[current=true]:text-white ${align}`;
+      mark.style.left = left;
       mark.addEventListener("click", () => show(index));
-      return mark;
+      return [tick, mark];
     })
   );
 }
