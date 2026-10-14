@@ -2,6 +2,9 @@
   command = "npm run build:site"
   publish = "examples/notes/dist"
 
+[build.environment]
+  NODE_VERSION = "22"
+
 [[headers]]
   for = "/*"
   [headers.values]
