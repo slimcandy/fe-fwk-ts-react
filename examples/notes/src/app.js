@@ -3,11 +3,9 @@ import { createComponent, createElement } from "fe-fwk-ts-react";
 import { rendered } from "./tracker.js";
 import { idOf } from "./views.js";
 
-const DAYS = { Mon: "Monday", Tue: "Tuesday", Wed: "Wednesday" };
-
 // One note, read-only. `mountedAs` is state, set once when the component is
 // mounted, like `useState(note.text)` in React. Props can change later; this
-// state doesn't. That's what shows which component sits in which position.
+// state doesn't. The table next to the list shows it.
 const Note = createComponent({
   state(props) {
     return { mountedAs: props.note.text };
@@ -16,45 +14,36 @@ const Note = createComponent({
   render() {
     idOf(this);
     const { note } = this.props;
-    const day = DAYS[note.updated.slice(0, 3)];
 
     return rendered(
       this,
       "Note",
-      createElement(
-        "li",
-        { class: "grid gap-x-4 gap-y-1 px-4 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center" },
-        [
-          createElement("p", { class: "text-sm/6 font-medium text-gray-900 dark:text-white" }, [note.text]),
-          createElement("p", { class: "text-xs/6 text-gray-500 sm:text-right dark:text-gray-400" }, [
-            `Edited on ${day}`,
-          ]),
-          createElement("p", { class: "font-mono text-xs/5 text-gray-500 dark:text-gray-400" }, [
-            `mounted as: ${this.state.mountedAs}`,
-          ]),
-          // A native field: what's typed in it lives only in the DOM, in no
-          // props and no state. `inert`: the demo types, not the visitor.
-          createElement("input", {
-            type: "text",
-            placeholder: "empty input",
-            inert: "",
-            class:
-              "w-full rounded-md bg-white px-2 py-0.5 font-mono text-xs/5 text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 sm:w-40 dark:bg-white/5 dark:text-white dark:outline-white/10",
-          }),
-        ]
-      )
+      createElement("li", { class: "flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3" }, [
+        createElement("p", { class: "text-sm/6 font-medium text-gray-900 dark:text-white" }, [note.text]),
+        // A native field: what's typed in it lives only in the DOM, in no
+        // props and no state. `inert`: the demo types, not the visitor.
+        createElement("input", {
+          type: "text",
+          placeholder: "empty input",
+          inert: "",
+          class:
+            "w-36 rounded-md bg-white px-2 py-0.5 font-mono text-xs/5 text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 dark:bg-white/5 dark:text-white dark:outline-white/10",
+        }),
+      ])
     );
   },
 });
 
-// No props, no state: it renders once and stays silent.
+// No props, no state: it renders when mounted and never again, so its
+// console.log prints once per mount.
 const Static = createComponent({
   render() {
+    console.log("Static: render()");
     return rendered(
       this,
       "Static",
       createElement("p", { class: "px-4 py-3 text-xs/5 text-gray-500 dark:text-gray-400" }, [
-        "A static component: no props, no state, so it renders only once.",
+        "A static component: its render() has a console.log, which prints when it mounts. No props, no state, so it never renders again.",
       ])
     );
   },

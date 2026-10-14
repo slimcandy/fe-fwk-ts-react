@@ -4,18 +4,14 @@ import { App, currentApp, setNotes } from "./app.js";
 import { drawDOM } from "./inspect.js";
 import { STEPS, explain } from "./scenario.js";
 import { flashRender, flashWrite, setSilent, watch } from "./tracker.js";
-import { drawBeforeAfter, drawCards, drawTable, resetIds, snapshot } from "./views.js";
+import { drawTable, resetIds, snapshot } from "./views.js";
 import "./style.css";
 
 const root = document.getElementById("root");
 const sliders = document.querySelectorAll("[data-step]");
 const keyBox = document.getElementById("use-keys");
+const table = document.getElementById("table");
 const domView = document.getElementById("dom");
-const views = {
-  table: [document.getElementById("view-table"), drawTable],
-  lines: [document.getElementById("view-lines"), drawBeforeAfter],
-  cards: [document.getElementById("view-cards"), drawCards],
-};
 
 let app;
 let step = 0;
@@ -34,7 +30,7 @@ function mount(keyed) {
 }
 
 // Shows step `target`: remounts the app, silently replays the steps before it,
-// then applies the last one for real, so the panel always shows one step.
+// then applies the last one for real, so the page always shows one step.
 function show(target) {
   step = target;
   const keyed = keyBox.checked;
@@ -57,10 +53,10 @@ function show(target) {
 
   for (const slider of sliders) {
     slider.value = String(step);
+    slider.setAttribute("aria-valuetext", `${step + 1}. ${STEPS[step].title}`);
   }
-  const { title } = STEPS[step];
-  for (const element of document.querySelectorAll("[data-title]")) {
-    element.textContent = `${step + 1}. ${title}`;
+  for (const mark of document.querySelectorAll("[data-mark]")) {
+    mark.setAttribute("aria-current", String(Number(mark.dataset.mark) === step));
   }
   document.querySelector("[data-note]").textContent = explain(STEPS[step], keyed);
 }
@@ -73,24 +69,7 @@ function report({ renders, writes }) {
     element.textContent = writes.length;
   }
 
-  list(
-    document.querySelector("[data-render-list]"),
-    renders.map(({ name, component }) =>
-      component.props.note ? `${name}.render()  ${component.props.note.text}` : `${name}.render()`
-    ),
-    "No render() ran."
-  );
-  list(
-    document.querySelector("[data-write-list]"),
-    writes.map(({ text }) => text),
-    "Nothing changed on the page."
-  );
-
-  // The views, redrawn for this step, then the flashes.
-  const after = snapshot(currentApp());
-  for (const [container, draw] of Object.values(views)) {
-    draw(container, before, after);
-  }
+  drawTable(table, before, snapshot(currentApp()));
   const domRows = drawDOM(domView, root);
 
   for (const { component } of renders) {
@@ -103,34 +82,34 @@ function report({ renders, writes }) {
   }
 }
 
-function list(element, items, empty) {
-  element.replaceChildren(
-    ...(items.length ? items : [empty]).map((text) => {
-      const li = document.createElement("li");
-      li.textContent = text;
-      if (!items.length) {
-        li.className = "list-none text-gray-500";
-      }
-      return li;
+// Step labels under each slider, placed under the step they name. The thumb
+// is 20px wide (style.css), so step i sits at 10px + i/6 of the rest. On
+// phones the labels are tilted 45° so they don't overlap.
+function drawMarks(container) {
+  const last = STEPS.length - 1;
+  container.replaceChildren(
+    ...STEPS.map(({ label }, index) => {
+      const mark = document.createElement("button");
+      mark.type = "button";
+      mark.dataset.mark = String(index);
+      mark.textContent = label;
+      mark.tabIndex = -1;
+      const align =
+        index === 0 ? "sm:-translate-x-[10px]" : index === last ? "sm:-translate-x-[calc(100%-10px)]" : "sm:-translate-x-1/2";
+      mark.className = `absolute top-0 origin-top-left rotate-45 text-xs/4 whitespace-nowrap text-gray-500 hover:text-gray-900 aria-[current=true]:font-semibold aria-[current=true]:text-gray-900 sm:rotate-0 dark:text-gray-400 dark:hover:text-white dark:aria-[current=true]:text-white ${align}`;
+      mark.style.left = `calc(10px + ${index / last} * (100% - 20px))`;
+      mark.addEventListener("click", () => show(index));
+      return mark;
     })
   );
 }
 
 watch(root, report);
+for (const container of document.querySelectorAll("[data-marks]")) {
+  drawMarks(container);
+}
 for (const slider of sliders) {
   slider.addEventListener("input", () => show(Number(slider.value)));
 }
 keyBox.addEventListener("change", () => show(step));
-
-// Tabs: three ways to show the same step.
-const tabs = document.querySelectorAll("[data-view]");
-for (const tab of tabs) {
-  tab.addEventListener("click", () => {
-    for (const other of tabs) {
-      other.setAttribute("aria-selected", String(other === tab));
-      views[other.dataset.view][0].hidden = other !== tab;
-    }
-    show(step);
-  });
-}
 show(0);

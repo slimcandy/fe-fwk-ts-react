@@ -26,3 +26,68 @@
 @theme {
   --font-mono: "MonoLisa", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
+
+/* The step slider: the same thumb size in every browser, so the step labels
+   can be placed under the steps. */
+.range {
+  appearance: none;
+  height: 1.5rem;
+  background: transparent;
+  cursor: pointer;
+}
+.range::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 9999px;
+  background: var(--color-gray-300);
+}
+.range::-moz-range-track {
+  height: 4px;
+  border-radius: 9999px;
+  background: var(--color-gray-300);
+}
+.range::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: -8px;
+  border: 3px solid var(--color-white);
+  border-radius: 9999px;
+  background: var(--color-gray-900);
+  box-shadow: 0 0 0 1px var(--color-gray-900);
+}
+.range::-moz-range-thumb {
+  box-sizing: border-box;
+  width: 20px;
+  height: 20px;
+  border: 3px solid var(--color-white);
+  border-radius: 9999px;
+  background: var(--color-gray-900);
+  box-shadow: 0 0 0 1px var(--color-gray-900);
+}
+.range:focus-visible {
+  outline: 2px solid var(--color-gray-900);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+/* Separate rules: a selector list with an unknown pseudo-element is dropped. */
+@media (prefers-color-scheme: dark) {
+  .range::-webkit-slider-runnable-track {
+    background: var(--color-gray-700, oklch(37.3% 0.034 259.733));
+  }
+  .range::-moz-range-track {
+    background: var(--color-gray-700, oklch(37.3% 0.034 259.733));
+  }
+  .range::-webkit-slider-thumb {
+    border-color: var(--color-gray-900);
+    background: var(--color-white);
+    box-shadow: 0 0 0 1px var(--color-white);
+  }
+  .range::-moz-range-thumb {
+    border-color: var(--color-gray-900);
+    background: var(--color-white);
+    box-shadow: 0 0 0 1px var(--color-white);
+  }
+  .range:focus-visible {
+    outline-color: var(--color-white);
+  }
+}
