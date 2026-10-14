@@ -2,7 +2,7 @@
 
 A TypeScript port of the framework from the book [Build a Frontend Web Framework (From Scratch)](https://www.manning.com/books/build-a-frontend-web-framework-from-scratch) by Ángel Sola Orbaiceta, following his [official repository](https://github.com/angelsolaorbaiceta/fe-fwk-book), with types and names taken from React. If you read the book, this shows how each piece maps to React.
 
-**Demo:** [react.avolkov.dev](https://react.avolkov.dev), a notes app that shows, for every action, how many components ran `render()` and how many times the DOM really changed.
+**Demo:** [react.avolkov.dev](https://react.avolkov.dev). A slider walks a notes list through seven edits. For each one you see which components ran `render()`, which DOM writes reached the page, and the virtual DOM next to the real one. A checkbox turns keys off, to show when they matter and when they don't.
 
 ## What's inside
 

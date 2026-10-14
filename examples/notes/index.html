@@ -6,7 +6,7 @@
     <title>Render is cheap · fe-fwk-ts-react</title>
     <meta
       name="description"
-      content="A notes app built with a TypeScript port of the framework from the book Build a Frontend Web Framework (From Scratch), with React's names. Every action shows how many components rendered and how many DOM writes it took."
+      content="Seven edits of a notes list, rendered by a TypeScript port of the framework from the book Build a Frontend Web Framework (From Scratch): render() calls versus real DOM writes, the virtual DOM next to the real one, and what keys change."
     />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <script type="module" src="/src/main.js"></script>
@@ -25,13 +25,13 @@
             href="https://www.manning.com/books/build-a-frontend-web-framework-from-scratch"
             class="font-medium text-gray-900 underline decoration-gray-300 underline-offset-4 hover:decoration-gray-900 dark:text-white dark:decoration-white/30 dark:hover:decoration-white"
             >Build a Frontend Web Framework (From Scratch)</a
-          >, with React’s names. Every action shows two numbers: how many components ran
-          <code class="font-mono text-base">render()</code>, and how many times the browser’s DOM really changed.
+          >, with React’s names. Move the slider through seven edits of a notes list and see two numbers for each: how
+          many components ran <code class="font-mono text-base">render()</code>, and how many times the page’s DOM really
+          changed.
         </p>
         <nav aria-label="Sections" class="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm/6 font-semibold">
           <a href="#demo" class="inline-block py-1 hover:text-gray-600 dark:hover:text-gray-300">Demo</a>
-          <a href="#how" class="inline-block py-1 hover:text-gray-600 dark:hover:text-gray-300">How it works</a>
-          <a href="#react" class="inline-block py-1 hover:text-gray-600 dark:hover:text-gray-300">Compared with React</a>
+          <a href="#how" class="inline-block py-1 hover:text-gray-600 dark:hover:text-gray-300">What to notice</a>
           <a href="#run" class="inline-block py-1 hover:text-gray-600 dark:hover:text-gray-300">Run it</a>
           <a href="https://github.com/slimcandy/fe-fwk-ts-react" class="inline-block py-1 hover:text-gray-600 dark:hover:text-gray-300">GitHub</a>
         </nav>
@@ -39,139 +39,115 @@
 
       <section id="demo" aria-labelledby="demo-title" class="mt-12 scroll-mt-8 sm:mt-16">
         <h2 id="demo-title" class="sr-only">Demo</h2>
-        <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+        <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-start">
           <div>
             <div id="root"></div>
             <p class="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm/6 text-gray-600 dark:text-gray-400">
               <span class="inline-flex items-center gap-2">
-                <span aria-hidden="true" class="size-3 rounded-sm outline-2 outline-offset-1 outline-amber-500"></span>
+                <span aria-hidden="true" class="size-3 rounded-sm outline-3 outline-offset-1 outline-render"></span>
                 <code class="font-mono">render()</code> ran: JavaScript only
               </span>
               <span class="inline-flex items-center gap-2">
-                <span aria-hidden="true" class="size-3 rounded-sm bg-teal-400/70"></span>
-                DOM changed: the browser has to update the page
+                <span aria-hidden="true" class="size-3 rounded-sm bg-write"></span>
+                DOM changed: the browser updates the page
               </span>
             </p>
           </div>
 
-          <!-- Tailwind Plus: Application UI → Data Display → Stats, Layout → Cards -->
+          <!-- Tailwind Plus: Application UI → Layout → Cards, Data Display → Stats, Forms → Checkboxes -->
           <aside
-            id="panel"
             aria-labelledby="panel-title"
             class="overflow-hidden rounded-lg bg-white shadow-sm lg:sticky lg:top-6 dark:bg-gray-800/50 dark:shadow-none dark:inset-ring dark:inset-ring-white/10"
           >
             <div class="border-b border-gray-200 px-4 py-4 sm:px-6 dark:border-white/10">
-              <h3 id="panel-title" class="text-base font-semibold">Under the hood</h3>
-              <p data-label aria-live="polite" class="mt-1 text-sm text-gray-500 dark:text-gray-400">First render</p>
+              <h3 id="panel-title" class="text-sm text-gray-500 dark:text-gray-400">Step</h3>
+              <p data-title aria-live="polite" class="mt-1 text-base font-semibold">1. First render</p>
+              <label for="step" class="sr-only">Step</label>
+              <input id="step" data-step type="range" min="0" max="6" step="1" value="0" list="step-marks" class="mt-4 hidden w-full lg:block h-6 accent-gray-900 dark:accent-white" />
+              <datalist id="step-marks">
+                <option value="0"></option><option value="1"></option><option value="2"></option><option value="3"></option><option value="4"></option><option value="5"></option><option value="6"></option>
+              </datalist>
+              <div class="mt-4 flex gap-3">
+                <div class="flex h-6 shrink-0 items-center">
+                  <div class="group grid size-4 grid-cols-1">
+                    <input id="use-keys" type="checkbox" checked aria-describedby="use-keys-hint" class="col-start-1 row-start-1 appearance-none rounded-sm border border-gray-300 bg-white checked:border-gray-900 checked:bg-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 dark:border-white/10 dark:bg-white/5 dark:checked:border-white dark:checked:bg-white forced-colors:appearance-auto" />
+                    <svg viewBox="0 0 14 14" fill="none" class="pointer-events-none col-start-1 row-start-1 size-3.5 self-center justify-self-center stroke-white group-has-checked:opacity-100 opacity-0 dark:stroke-gray-900">
+                      <path d="M3 8L6 11L11 3.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </div>
+                </div>
+                <div class="text-sm/6">
+                  <label for="use-keys" class="inline-block py-0.5 font-medium">Use keys</label>
+                  <p id="use-keys-hint" class="text-gray-500 dark:text-gray-400"><code class="font-mono text-xs">key: note.id</code> on every note. Matters in steps 6 and 7.</p>
+                </div>
+              </div>
+              <p data-note class="mt-4 text-sm/6 text-gray-700 dark:text-gray-300"></p>
             </div>
             <dl class="grid grid-cols-2 divide-x divide-gray-200 border-b border-gray-200 dark:divide-white/10 dark:border-white/10">
-              <div class="px-4 py-5 sm:px-6">
+              <div class="px-4 py-4 sm:px-6">
                 <dt class="text-sm text-gray-600 dark:text-gray-300"><code class="font-mono">render()</code> calls</dt>
                 <dd data-renders class="mt-1 text-3xl font-semibold tracking-tight text-amber-600 tabular-nums dark:text-amber-400">0</dd>
               </div>
-              <div class="px-4 py-5 sm:px-6">
+              <div class="px-4 py-4 sm:px-6">
                 <dt class="text-sm text-gray-600 dark:text-gray-300">DOM writes</dt>
-                <dd data-writes class="mt-1 text-3xl font-semibold tracking-tight text-teal-600 tabular-nums dark:text-teal-400">0</dd>
+                <dd data-writes class="mt-1 text-3xl font-semibold tracking-tight text-emerald-600 tabular-nums dark:text-emerald-400">0</dd>
               </div>
             </dl>
             <div class="grid grid-cols-2 divide-x divide-gray-200 font-mono text-xs/5 dark:divide-white/10">
-              <ul data-render-list class="space-y-1 px-4 py-4 break-words sm:px-6"></ul>
-              <ul data-write-list class="space-y-1 px-4 py-4 break-words sm:px-6"></ul>
+              <ul data-render-list aria-label="render() calls" class="list-disc space-y-1 py-4 pr-3 pl-7 break-words marker:text-amber-500"></ul>
+              <ul data-write-list aria-label="DOM writes" class="list-disc space-y-1 py-4 pr-3 pl-7 break-words marker:text-emerald-500"></ul>
             </div>
-            <p data-total class="border-t border-gray-200 bg-gray-50 px-4 py-3 text-xs/5 text-gray-500 sm:px-6 dark:border-white/10 dark:bg-white/5 dark:text-gray-400"></p>
           </aside>
+        </div>
+
+        <div class="mt-8 grid gap-6 lg:grid-cols-2">
+          <figure class="overflow-hidden rounded-lg bg-gray-950 inset-ring inset-ring-white/10">
+            <figcaption class="border-b border-white/10 px-4 py-3 text-sm font-semibold text-white">
+              Virtual DOM <span class="font-normal text-gray-400">· what render() returned</span>
+            </figcaption>
+            <div class="overflow-x-auto"><div id="vdom" class="min-w-max py-3 font-mono text-xs/6 text-gray-300"></div></div>
+          </figure>
+          <figure class="overflow-hidden rounded-lg bg-gray-950 inset-ring inset-ring-white/10">
+            <figcaption class="border-b border-white/10 px-4 py-3 text-sm font-semibold text-white">
+              Real DOM <span class="font-normal text-gray-400">· what’s on the page, classes hidden</span>
+            </figcaption>
+            <div class="overflow-x-auto"><div id="dom" class="min-w-max py-3 font-mono text-xs/6 text-gray-300"></div></div>
+          </figure>
         </div>
       </section>
 
       <section id="how" aria-labelledby="how-title" class="mt-20 scroll-mt-8 sm:mt-24">
-        <h2 id="how-title" class="text-2xl font-semibold tracking-tight sm:text-3xl">How it works</h2>
+        <h2 id="how-title" class="text-2xl font-semibold tracking-tight sm:text-3xl">What to notice</h2>
         <div class="mt-8 grid gap-8 md:grid-cols-3">
           <div>
-            <h3 class="font-semibold">1. Render builds objects</h3>
+            <h3 class="font-semibold">Render is a calculation</h3>
             <p class="mt-2 text-sm/6 text-gray-600 dark:text-gray-300">
-              <code class="font-mono">render()</code> returns a tree of plain objects, the virtual DOM. Building it touches nothing
-              on the page, so a component can render often.
+              <code class="font-mono">render()</code> returns the component’s next tree of plain objects. A
+              <code class="font-mono">console.log</code> in it prints every time, but the page changes only where the new
+              tree differs from the old one. Step 3 renders a note and writes nothing.
             </p>
           </div>
           <div>
-            <h3 class="font-semibold">2. The diff finds what changed</h3>
+            <h3 class="font-semibold">Most lists don’t need keys</h3>
             <p class="mt-2 text-sm/6 text-gray-600 dark:text-gray-300">
-              <code class="font-mono">patchDOM()</code> compares the old tree with the new one. For keyed lists,
-              <code class="font-mono">arraysDiffSequence()</code> works out which items were added, removed or moved.
+              Editing a note, adding to the end, removing the last: turn keys off and steps 2 to 5 give the same page and
+              the same DOM writes. Without keys, a child is matched by its position, and these edits keep positions.
             </p>
           </div>
           <div>
-            <h3 class="font-semibold">3. Only the difference reaches the DOM</h3>
+            <h3 class="font-semibold">Without keys, state stays put</h3>
             <p class="mt-2 text-sm/6 text-gray-600 dark:text-gray-300">
-              Edit one note and the app renders again, but the other notes see equal props and skip
-              <code class="font-mono">render()</code>. One text node changes.
+              Add to the top without keys and the page still reads right: every position gets new props, one
+              <code class="font-mono">&lt;li&gt;</code> is added at the end. But “mounted as” shows the state didn’t move.
+              The framework is right by its own rules: same position, same component.
             </p>
           </div>
         </div>
-      </section>
-
-      <section id="react" aria-labelledby="react-title" class="mt-20 scroll-mt-8 sm:mt-24">
-        <h2 id="react-title" class="text-2xl font-semibold tracking-tight sm:text-3xl">Compared with React</h2>
-        <p class="mt-4 max-w-3xl text-base/7 text-gray-600 dark:text-gray-300">
-          212 tests run on every change: the book’s own test suite, ported to TypeScript, and tests that render the same
-          keyed list with this runtime and with <code class="font-mono">react-dom</code>, apply the same edits, and require
-          the same DOM after each one. Random lists and random edits too.
+        <p class="mt-8 max-w-3xl text-sm/6 text-gray-600 dark:text-gray-300">
+          One difference from React: here a component whose props didn’t change skips <code class="font-mono">render()</code>,
+          which is what <code class="font-mono">React.memo</code> does. Plain React calls every child of a component that renders.
+          The DOM writes are the same.
         </p>
-        <!-- Tailwind Plus: Application UI → Lists → Tables -->
-        <div class="mt-8 -mx-4 overflow-x-auto sm:mx-0">
-          <table class="min-w-full divide-y divide-gray-300 text-sm dark:divide-white/15">
-            <caption class="px-4 pb-3 text-left text-sm text-gray-500 sm:px-0 dark:text-gray-400">
-              DOM writes for each edit of a list of five notes, measured in the tests.
-            </caption>
-            <thead>
-              <tr>
-                <th scope="col" class="py-3 pr-3 pl-4 text-left font-semibold sm:pl-0">Edit</th>
-                <th scope="col" class="px-3 py-3 text-right font-semibold">This runtime</th>
-                <th scope="col" class="py-3 pr-4 pl-3 text-right font-semibold sm:pr-0">React 19</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200 tabular-nums dark:divide-white/10">
-              <tr><td class="py-3 pr-3 pl-4 sm:pl-0">Add a note</td><td class="px-3 text-right">1</td><td class="pr-4 pl-3 text-right sm:pr-0">1</td></tr>
-              <tr><td class="py-3 pr-3 pl-4 sm:pl-0">Edit a note</td><td class="px-3 text-right">1</td><td class="pr-4 pl-3 text-right sm:pr-0">1</td></tr>
-              <tr><td class="py-3 pr-3 pl-4 sm:pl-0">Delete a note</td><td class="px-3 text-right">1</td><td class="pr-4 pl-3 text-right sm:pr-0">1</td></tr>
-              <tr><td class="py-3 pr-3 pl-4 sm:pl-0">Reverse the list</td><td class="px-3 text-right">8</td><td class="pr-4 pl-3 text-right sm:pr-0">8</td></tr>
-              <tr class="bg-teal-50 dark:bg-teal-400/10">
-                <td class="py-3 pr-3 pl-4 font-medium sm:pl-0">Move the last note to the top</td>
-                <td class="px-3 text-right font-semibold">2</td>
-                <td class="pr-4 pl-3 text-right sm:pr-0">8</td>
-              </tr>
-              <tr><td class="py-3 pr-3 pl-4 sm:pl-0">Same notes, new objects</td><td class="px-3 text-right">0</td><td class="pr-4 pl-3 text-right sm:pr-0">0</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p class="mt-4 max-w-3xl text-sm/6 text-gray-600 dark:text-gray-300">
-          Moving a node counts as two writes: out and back in. The book’s diff walks the new list and moves the last note
-          into place: one move. React walks left to right and keeps every note that is already in order relative to the last
-          one it placed, so here it moves the other four. Same DOM, different work.
-        </p>
-
-        <h3 class="mt-12 font-semibold">Names: the book, this port, React</h3>
-        <div class="mt-4 -mx-4 overflow-x-auto sm:mx-0">
-          <table class="min-w-full divide-y divide-gray-300 text-sm dark:divide-white/15">
-            <thead>
-              <tr>
-                <th scope="col" class="py-3 pr-3 pl-4 text-left font-semibold sm:pl-0">Book</th>
-                <th scope="col" class="px-3 py-3 text-left font-semibold">This port</th>
-                <th scope="col" class="py-3 pr-4 pl-3 text-left font-semibold sm:pr-0">React</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200 font-mono text-xs/5 dark:divide-white/10">
-              <tr><td class="py-3 pr-3 pl-4 sm:pl-0">h()</td><td class="px-3">createElement()</td><td class="pr-4 pl-3 sm:pr-0">React.createElement()</td></tr>
-              <tr><td class="py-3 pr-3 pl-4 sm:pl-0">defineComponent()</td><td class="px-3">createComponent()</td><td class="pr-4 pl-3 sm:pr-0">class extends Component</td></tr>
-              <tr><td class="py-3 pr-3 pl-4 sm:pl-0">updateState()</td><td class="px-3">setState()</td><td class="pr-4 pl-3 sm:pr-0">this.setState()</td></tr>
-              <tr><td class="py-3 pr-3 pl-4 sm:pl-0">onMounted()</td><td class="px-3">componentDidMount()</td><td class="pr-4 pl-3 sm:pr-0">componentDidMount()</td></tr>
-              <tr><td class="py-3 pr-3 pl-4 sm:pl-0">onUnmounted()</td><td class="px-3">componentWillUnmount()</td><td class="pr-4 pl-3 sm:pr-0">componentWillUnmount()</td></tr>
-              <tr><td class="py-3 pr-3 pl-4 sm:pl-0">emit("add")</td><td class="px-3">emit("add")</td><td class="pr-4 pl-3 sm:pr-0">props.onAdd()</td></tr>
-              <tr><td class="py-3 pr-3 pl-4 sm:pl-0">vdom.el</td><td class="px-3">vNode.domElement</td><td class="pr-4 pl-3 sm:pr-0">fiber.stateNode</td></tr>
-              <tr><td class="py-3 pr-3 pl-4 sm:pl-0">areNodesEqual()</td><td class="px-3">areVNodesEqual()</td><td class="pr-4 pl-3 sm:pr-0">same type and key</td></tr>
-            </tbody>
-          </table>
-        </div>
       </section>
 
       <section id="run" aria-labelledby="run-title" class="mt-20 scroll-mt-8 sm:mt-24">
@@ -235,14 +211,21 @@ createApp(Counter).mount(document.body);</code></pre>
       </footer>
     </div>
 
-    <!-- On phones the panel is below the notes, so the two numbers also stay pinned to the bottom. -->
+    <!-- On phones the slider and the two numbers stay pinned to the bottom. -->
     <div
       class="fixed inset-x-0 bottom-0 border-t border-gray-200 bg-white/95 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur-sm lg:hidden dark:border-white/10 dark:bg-gray-900/95"
     >
-      <p class="mx-auto flex max-w-6xl justify-between text-sm font-medium">
-        <span><code class="font-mono">render()</code> <span data-renders class="font-semibold text-amber-600 tabular-nums dark:text-amber-400">0</span></span>
-        <span>DOM writes <span data-writes class="font-semibold text-teal-600 tabular-nums dark:text-teal-400">0</span></span>
-      </p>
+      <div class="mx-auto max-w-6xl">
+        <p class="flex justify-between gap-4 text-sm font-medium">
+          <span data-title class="truncate">1. First render</span>
+          <span class="shrink-0 tabular-nums">
+            <span data-renders class="font-semibold text-amber-600 dark:text-amber-400">0</span> /
+            <span data-writes class="font-semibold text-emerald-600 dark:text-emerald-400">0</span>
+          </span>
+        </p>
+        <label for="step-mobile" class="sr-only">Step</label>
+        <input id="step-mobile" data-step type="range" min="0" max="6" step="1" value="0" list="step-marks" class="mt-2 w-full h-6 accent-gray-900 dark:accent-white" />
+      </div>
     </div>
   </body>
 </html>

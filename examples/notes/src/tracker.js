@@ -2,47 +2,56 @@
 //
 // - framework renders: a component's render() ran. It only builds plain
 //   JavaScript objects (the virtual DOM), so it's cheap.
-// - DOM writes: the browser's DOM really changed. MutationObserver sees every
+// - DOM writes: the page's DOM really changed. MutationObserver sees every
 //   node added or removed, every attribute and every text change.
 //
-// Components call `rendered(this)` from render(); event handlers call
-// `action("…")`. Everything that happens in one task is reported together.
+// Components wrap what render() returns in `rendered(this, "Name", vNode)`.
+// Everything that happens in one task is reported together.
 
-const RENDER = [
-  { outline: "2px solid rgb(245 158 11 / 0.9)", outlineOffset: "-2px" },
-  { outline: "2px solid rgb(245 158 11 / 0)", outlineOffset: "-2px" },
-];
-const WRITE = [
-  { backgroundColor: "rgb(45 212 191 / 0.45)" },
-  { backgroundColor: "rgb(45 212 191 / 0)" },
-];
+// Wide-gamut colours from style.css (--color-render, --color-write): on a
+// Display P3 screen they're brighter than any sRGB colour; elsewhere the
+// browser maps them to the closest colour it can show.
+function color(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
 
+const FLASH = { duration: 2400, easing: "cubic-bezier(0.2, 0, 0, 1)" };
+
+const outputs = new WeakMap();
 let renders = [];
-let label = "First render";
 let scheduled = false;
+let silent = false;
 let observer;
+let records = [];
 let onReport = () => {};
 
-function schedule() {
-  if (!scheduled) {
-    scheduled = true;
-    queueMicrotask(flush);
+// The last tree each component returned, for the virtual DOM view.
+export function outputOf(component) {
+  return outputs.get(component);
+}
+
+export function rendered(component, name, vNode) {
+  outputs.set(component, { name, vNode });
+  if (!silent) {
+    renders.push({ component, name });
   }
+  schedule();
+  return vNode;
 }
 
-export function rendered(component, name) {
-  renders.push({ component, name });
-  schedule();
-}
-
-export function action(text) {
-  label = text;
-  schedule();
+// While silent, renders and DOM writes happen but aren't reported: the page
+// uses it to replay the steps before the one it shows.
+export function setSilent(value) {
+  observer?.takeRecords();
+  records = [];
+  renders = [];
+  silent = value;
 }
 
 export function watch(root, callback) {
   onReport = callback;
-  observer = new MutationObserver(() => {});
+  // The browser may deliver records here before flush() runs; keep them.
+  observer = new MutationObserver((delivered) => records.push(...delivered));
   observer.observe(root, {
     childList: true,
     attributes: true,
@@ -51,36 +60,40 @@ export function watch(root, callback) {
   });
 }
 
+function schedule() {
+  if (!scheduled) {
+    scheduled = true;
+    queueMicrotask(flush);
+  }
+}
+
 function flush() {
   scheduled = false;
-  const records = observer.takeRecords();
-  const writes = records.flatMap(describe);
-
-  for (const { component } of renders) {
-    const element = component.firstDOMElement;
-    if (element instanceof HTMLElement) {
-      element.animate(RENDER, { duration: 900, easing: "ease-out" });
-    }
+  if (silent) {
+    return;
   }
-  for (const { flash } of writes) {
-    flash?.animate(WRITE, { duration: 900, easing: "ease-out" });
-  }
-
-  onReport({
-    label,
-    renders: renders.map(({ name }) => name),
-    writes: writes.map(({ text }) => text),
-  });
+  const writes = [...records, ...observer.takeRecords()].flatMap(describe);
+  onReport({ renders, writes });
+  records = [];
   renders = [];
-  label = "";
+}
+
+export function flashRender(element) {
+  element?.animate(
+    [
+      { outline: `3px solid ${color("--color-render")}`, outlineOffset: "-3px" },
+      { outline: "3px solid transparent", outlineOffset: "-3px" },
+    ],
+    FLASH
+  );
+}
+
+export function flashWrite(element) {
+  element?.animate([{ backgroundColor: color("--color-write") }, { backgroundColor: "transparent" }], FLASH);
 }
 
 function tag(node) {
   return node instanceof Element ? `<${node.localName}>` : "text";
-}
-
-function visible(node) {
-  return node instanceof HTMLElement ? node : node.parentElement;
 }
 
 // One entry per DOM write, counted the same way as in the tests against React.
@@ -94,28 +107,13 @@ function describe(record) {
   switch (record.type) {
     case "childList":
       return [
-        ...[...record.addedNodes].map((node) => ({
-          text: `added ${tag(node)}`,
-          flash: visible(node),
-        })),
-        ...[...record.removedNodes].map((node) => ({
-          text: `removed ${tag(node)}`,
-        })),
+        ...[...record.addedNodes].map((node) => ({ text: `added ${tag(node)}`, node })),
+        ...[...record.removedNodes].map((node) => ({ text: `removed ${tag(node)}`, node: record.target })),
       ];
     case "attributes":
-      return [
-        {
-          text: `set ${record.attributeName} on ${tag(record.target)}`,
-          flash: visible(record.target),
-        },
-      ];
+      return [{ text: `set ${record.attributeName} on ${tag(record.target)}`, node: record.target }];
     case "characterData":
-      return [
-        {
-          text: `changed text in ${tag(record.target.parentElement)}`,
-          flash: visible(record.target),
-        },
-      ];
+      return [{ text: `changed text in ${tag(record.target.parentElement)}`, node: record.target }];
     default:
       return [];
   }

@@ -1,52 +1,104 @@
 import { createApp } from "fe-fwk-ts-react";
 
-import { App } from "./app.js";
-import { watch } from "./tracker.js";
+import { App, currentApp, setNotes } from "./app.js";
+import { drawDOM, drawVirtualDOM } from "./inspect.js";
+import { STEPS, explain } from "./scenario.js";
+import { flashRender, flashWrite, setSilent, watch } from "./tracker.js";
 import "./style.css";
 
 const root = document.getElementById("root");
-const panel = document.getElementById("panel");
-const total = { renders: 0, writes: 0 };
+const sliders = document.querySelectorAll("[data-step]");
+const keyBox = document.getElementById("use-keys");
+const virtualView = document.getElementById("vdom");
+const domView = document.getElementById("dom");
 
-// The panel lives outside #root, so updating it is never counted as a DOM write.
-function show({ label, renders, writes }) {
-  total.renders += renders.length;
-  total.writes += writes.length;
+let app;
+let step = 0;
 
+// Shows step `target`: remounts the app, silently replays the steps before it,
+// then applies the last one for real, so the panel always shows one step.
+function show(target) {
+  step = target;
+  const keyed = keyBox.checked;
+
+  setSilent(true);
+  app?.unmount();
+  if (step > 0) {
+    app = createApp(App, { notes: STEPS[0].notes, keyed });
+    app.mount(root);
+    for (let i = 1; i < step; i++) {
+      setNotes(STEPS[i].notes);
+    }
+    setSilent(false);
+    setNotes(STEPS[step].notes);
+  } else {
+    setSilent(false);
+    app = createApp(App, { notes: STEPS[0].notes, keyed });
+    app.mount(root);
+  }
+
+  for (const slider of sliders) {
+    slider.value = String(step);
+  }
+  const { title } = STEPS[step];
+  for (const element of document.querySelectorAll("[data-title]")) {
+    element.textContent = `${step + 1}. ${title}`;
+  }
+  document.querySelector("[data-note]").textContent = explain(STEPS[step], keyed);
+}
+
+function report({ renders, writes }) {
   for (const element of document.querySelectorAll("[data-renders]")) {
     element.textContent = renders.length;
   }
   for (const element of document.querySelectorAll("[data-writes]")) {
     element.textContent = writes.length;
   }
-  panel.querySelector("[data-label]").textContent = label || "Last action";
-  panel.querySelector("[data-total]").textContent =
-    `Since the page loaded: ${total.renders} renders, ${total.writes} DOM writes.`;
-  fill(panel.querySelector("[data-render-list]"), group(renders), "No component rendered.");
-  fill(panel.querySelector("[data-write-list]"), group(writes), "Nothing changed in the DOM.");
-}
 
-// ["Note", "Note", "App"] → ["Note × 2", "App"]
-function group(items) {
-  const counts = new Map();
-  for (const item of items) {
-    counts.set(item, (counts.get(item) ?? 0) + 1);
+  list(
+    document.querySelector("[data-render-list]"),
+    renders.map(({ name, component }) =>
+      component.props.note ? `${name}.render()  ${component.props.note.text}` : `${name}.render()`
+    ),
+    "No render() ran."
+  );
+  list(
+    document.querySelector("[data-write-list]"),
+    writes.map(({ text }) => text),
+    "Nothing changed on the page."
+  );
+
+  // The two views, redrawn for this step, then the flashes.
+  const virtualRows = drawVirtualDOM(virtualView, currentApp());
+  const domRows = drawDOM(domView, root);
+
+  for (const { component } of renders) {
+    const element = component.firstDOMElement;
+    flashRender(element instanceof HTMLElement ? element : null);
+    flashRender(virtualRows.get(component));
   }
-  return [...counts].map(([item, count]) => (count > 1 ? `${item} × ${count}` : item));
+  for (const { node } of writes) {
+    flashWrite(node instanceof HTMLElement ? node : node.parentElement);
+    flashWrite(domRows.get(node));
+  }
 }
 
-function fill(list, items, empty) {
-  list.replaceChildren(
+function list(element, items, empty) {
+  element.replaceChildren(
     ...(items.length ? items : [empty]).map((text) => {
       const li = document.createElement("li");
       li.textContent = text;
       if (!items.length) {
-        li.className = "text-gray-400 dark:text-gray-500";
+        li.className = "list-none text-gray-500";
       }
       return li;
     })
   );
 }
 
-watch(root, show);
-createApp(App).mount(root);
+watch(root, report);
+for (const slider of sliders) {
+  slider.addEventListener("input", () => show(Number(slider.value)));
+}
+keyBox.addEventListener("change", () => show(step));
+show(0);

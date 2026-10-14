@@ -17,6 +17,12 @@
   font-display: swap;
 }
 
+/* Wide-gamut colours for the flashes: brighter than sRGB on Display P3 screens. */
+@theme static {
+  --color-render: oklch(0.8 0.2 75);
+  --color-write: oklch(0.82 0.22 160);
+}
+
 @theme {
   --font-mono: "MonoLisa", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
