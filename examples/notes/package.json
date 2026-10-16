@@ -1,6 +1,7 @@
 {
   "name": "notes-example",
   "private": true,
+  "description": "The notes demo at react.avolkov.dev: render() calls versus real DOM writes.",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,8 +10,8 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "^4.3.3",
-    "tailwindcss": "^4.3.3",
-    "vite": "^8.3.1"
+    "@tailwindcss/vite": "4.3.3",
+    "tailwindcss": "4.3.3",
+    "vite": "8.3.1"
   }
 }
