@@ -37,6 +37,7 @@
         </nav>
       </header>
 
+      <main>
       <section id="demo" aria-labelledby="demo-title" class="mt-12 scroll-mt-8 sm:mt-16">
         <h2 id="demo-title" class="sr-only">Demo</h2>
 
@@ -94,19 +95,20 @@
         <div class="mt-6 grid gap-6 lg:grid-cols-2 lg:items-start">
           <div id="root" data-steady class="grid"></div>
           <figure data-steady class="overflow-hidden rounded-lg bg-gray-950 inset-ring inset-ring-white/10">
-            <figcaption class="border-b border-white/10 px-4 py-3 text-sm font-semibold text-white">
+            <figcaption id="table-title" class="border-b border-white/10 px-4 py-3 text-sm font-semibold text-white">
               Each position <span class="font-normal text-gray-400 contrast-more:text-gray-300">· props, state and the native input</span>
             </figcaption>
-            <div id="table" class="overflow-x-auto py-1 font-mono text-xs/5 text-gray-300"></div>
+            <!-- The panels scroll, so the keyboard can reach them (Safari doesn't do that by itself). -->
+            <div id="table" role="region" aria-labelledby="table-title" tabindex="0" class="overflow-x-auto py-1 font-mono text-xs/5 text-gray-300 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-white"></div>
           </figure>
         </div>
 
         <!-- Line 3: the real DOM. -->
         <figure class="mt-6 overflow-hidden rounded-lg bg-gray-950 inset-ring inset-ring-white/10">
-          <figcaption class="border-b border-white/10 px-4 py-3 text-sm font-semibold text-white">
+          <figcaption id="dom-title" class="border-b border-white/10 px-4 py-3 text-sm font-semibold text-white">
             Real DOM <span class="font-normal text-gray-400 contrast-more:text-gray-300">· what’s on the page, classes hidden</span>
           </figcaption>
-          <div class="max-h-[30rem] overflow-auto"><div id="dom" data-steady class="min-w-max py-3 font-mono text-xs/6 text-gray-300"></div></div>
+          <div role="region" aria-labelledby="dom-title" tabindex="0" class="max-h-[30rem] overflow-auto focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-white"><div id="dom" data-steady class="min-w-max py-3 font-mono text-xs/6 text-gray-300"></div></div>
         </figure>
 
         <!-- Line 4: the steps again, next to the real DOM. -->
@@ -199,6 +201,7 @@ createApp(Counter).mount(document.body);</code></pre>
           </li>
         </ol>
       </section>
+      </main>
 
       <footer class="mt-20 border-t border-gray-200 pt-8 text-sm/6 text-gray-500 contrast-more:text-gray-700 sm:mt-24 dark:border-white/10 dark:text-gray-400 dark:contrast-more:text-gray-300">
         <p>
