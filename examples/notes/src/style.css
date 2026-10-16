@@ -17,6 +17,12 @@
   font-display: swap;
 }
 
+/* The viewport covers the notch (viewport-fit=cover): keep the content out of the insets. */
+body {
+  padding-inline: env(safe-area-inset-left) env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
 /* Wide-gamut colours for the flashes: brighter than sRGB on Display P3 screens. */
 @theme static {
   --color-render: oklch(0.8 0.2 75);
