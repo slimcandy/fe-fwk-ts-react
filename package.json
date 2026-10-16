@@ -34,5 +34,8 @@
     "dev": "npm run dev -w examples/notes",
     "build:site": "npm run build -w examples/notes",
     "start": "npm run preview -w examples/notes"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
   }
 }
