@@ -7,4 +7,4 @@
 /examples/notes/dist/
 
 # Licensed fonts: fetched at build time, never committed
-/examples/notes/public/fonts/MonoLisa-*.ttf
+/examples/notes/public/fonts/MonoLisa*
