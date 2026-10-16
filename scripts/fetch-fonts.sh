@@ -8,7 +8,7 @@
 #   FONTS_DEPLOY_KEY  base64 of a read-only deploy key for slimcandy/monolisa-font
 
 set -e
-DIR=examples/notes/public/fonts
+DIR="$(dirname "$0")/../examples/notes/public/fonts"   # the hook runs from examples/notes
 REPO=git@github.com:slimcandy/monolisa-font.git
 
 [ -f "$DIR/MonoLisa.css" ] && exit 0
