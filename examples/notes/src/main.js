@@ -106,7 +106,7 @@ function drawMarks(container) {
       mark.textContent = label;
       const align =
         index === 0 ? "sm:-translate-x-[7px]" : index === last ? "sm:-translate-x-[calc(100%-7px)]" : "sm:-translate-x-1/2";
-      mark.className = `absolute top-2.5 origin-top-left rotate-45 cursor-pointer text-xs/4 whitespace-nowrap text-gray-500 hover:text-gray-900 aria-[current=true]:font-semibold aria-[current=true]:text-gray-900 sm:rotate-0 dark:text-gray-400 dark:hover:text-white dark:aria-[current=true]:text-white ${align}`;
+      mark.className = `absolute top-2.5 origin-top-left rotate-45 cursor-pointer text-xs/4 whitespace-nowrap text-gray-500 hover:text-gray-900 aria-[current=true]:font-semibold aria-[current=true]:text-gray-900 contrast-more:text-gray-700 sm:rotate-0 dark:text-gray-400 dark:hover:text-white dark:contrast-more:text-gray-300 dark:aria-[current=true]:text-white ${align}`;
       mark.style.left = left;
       mark.addEventListener("click", () => show(index));
       return [tick, mark];

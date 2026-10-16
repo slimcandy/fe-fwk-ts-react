@@ -71,7 +71,7 @@ function quoted(text) {
 }
 
 const CELL = "px-3 py-2 align-top first:pl-4 last:pr-4";
-const OLD = "text-gray-500 line-through decoration-gray-500";
+const OLD = "text-gray-400 line-through decoration-gray-400";
 
 export function drawTable(container, before, after) {
   const head = el(
@@ -87,7 +87,7 @@ export function drawTable(container, before, after) {
     const old = before[index];
     const cells = [
       { text: String(index + 1) },
-      { text: row.key ?? "none", className: row.key == null ? "text-gray-500" : "text-fuchsia-300" },
+      { text: row.key ?? "none", className: row.key == null ? "text-gray-400" : "text-fuchsia-300" },
       { text: row.text, then: old?.text },
       { text: row.state, then: old?.state },
       { text: quoted(row.input), then: old && quoted(old.input), className: "text-sky-300" },
@@ -116,7 +116,7 @@ export function drawTable(container, before, after) {
   const removed = before
     .filter((row) => !after.some((other) => other.id === row.id))
     .map((row) => {
-      const td = el("td", `${CELL} text-gray-500`, `A note component was unmounted. It showed “${row.text}”.`);
+      const td = el("td", `${CELL} text-gray-400`, `A note component was unmounted. It showed “${row.text}”.`);
       td.colSpan = 5;
       return el("tr", "", td);
     });

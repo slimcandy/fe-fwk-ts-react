@@ -45,7 +45,7 @@ const Static = createComponent({
     return rendered(
       this,
       "Static",
-      createElement("p", { class: "px-4 py-3 text-xs/5 text-gray-500 dark:text-gray-400" }, [
+      createElement("p", { class: "px-4 py-3 text-xs/5 text-gray-500 contrast-more:text-gray-700 dark:text-gray-400 dark:contrast-more:text-gray-300" }, [
         "A static component: its render() has a console.log, which prints when it mounts. No props, no state, so it never renders again.",
       ])
     );

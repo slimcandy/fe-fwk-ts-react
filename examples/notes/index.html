@@ -15,7 +15,7 @@
   <body class="text-gray-900 antialiased dark:text-white">
     <div class="mx-auto max-w-6xl px-4 pt-10 pb-16 sm:px-6 sm:pt-16 lg:px-8">
       <header class="max-w-3xl">
-        <p class="font-mono text-sm/6 font-medium text-gray-500 dark:text-gray-400">fe-fwk-ts-react</p>
+        <p class="font-mono text-sm/6 font-medium text-gray-500 contrast-more:text-gray-700 dark:text-gray-400 dark:contrast-more:text-gray-300">fe-fwk-ts-react</p>
         <h1 class="mt-2 text-4xl font-semibold tracking-tight text-pretty sm:text-5xl">
           Render is cheap. The DOM is&nbsp;not.
         </h1>
@@ -83,9 +83,9 @@
               </div>
             </div>
             <p class="font-mono text-sm tabular-nums">
-              render() <span data-renders class="font-semibold text-amber-600 dark:text-amber-400">0</span>
+              render() <span data-renders class="font-semibold text-amber-700 dark:text-amber-400">0</span>
               <span class="text-gray-400">·</span>
-              DOM writes <span data-writes class="font-semibold text-emerald-600 dark:text-emerald-400">0</span>
+              DOM writes <span data-writes class="font-semibold text-emerald-700 dark:text-emerald-400">0</span>
             </p>
           </div>
         </div>
@@ -95,7 +95,7 @@
           <div id="root" data-steady class="grid"></div>
           <figure data-steady class="overflow-hidden rounded-lg bg-gray-950 inset-ring inset-ring-white/10">
             <figcaption class="border-b border-white/10 px-4 py-3 text-sm font-semibold text-white">
-              Each position <span class="font-normal text-gray-400">· props, state and the native input</span>
+              Each position <span class="font-normal text-gray-400 contrast-more:text-gray-300">· props, state and the native input</span>
             </figcaption>
             <div id="table" class="overflow-x-auto py-1 font-mono text-xs/5 text-gray-300"></div>
           </figure>
@@ -104,7 +104,7 @@
         <!-- Line 3: the real DOM. -->
         <figure class="mt-6 overflow-hidden rounded-lg bg-gray-950 inset-ring inset-ring-white/10">
           <figcaption class="border-b border-white/10 px-4 py-3 text-sm font-semibold text-white">
-            Real DOM <span class="font-normal text-gray-400">· what’s on the page, classes hidden</span>
+            Real DOM <span class="font-normal text-gray-400 contrast-more:text-gray-300">· what’s on the page, classes hidden</span>
           </figcaption>
           <div class="max-h-[30rem] overflow-auto"><div id="dom" data-steady class="min-w-max py-3 font-mono text-xs/6 text-gray-300"></div></div>
         </figure>
@@ -200,7 +200,7 @@ createApp(Counter).mount(document.body);</code></pre>
         </ol>
       </section>
 
-      <footer class="mt-20 border-t border-gray-200 pt-8 text-sm/6 text-gray-500 sm:mt-24 dark:border-white/10 dark:text-gray-400">
+      <footer class="mt-20 border-t border-gray-200 pt-8 text-sm/6 text-gray-500 contrast-more:text-gray-700 sm:mt-24 dark:border-white/10 dark:text-gray-400 dark:contrast-more:text-gray-300">
         <p>
           Based on
           <a href="https://www.manning.com/books/build-a-frontend-web-framework-from-scratch" class="inline-block py-1 font-medium text-gray-900 hover:underline dark:text-white">Build a Frontend Web Framework (From Scratch)</a>

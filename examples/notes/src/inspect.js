@@ -22,7 +22,7 @@ function row(depth, parts) {
 const TAG = "text-sky-300";
 const NAME = "text-amber-300";
 const KEY = "text-fuchsia-300";
-const DIM = "text-gray-500";
+const DIM = "text-gray-400";
 const STRING = "text-emerald-300";
 
 function quote(text) {
