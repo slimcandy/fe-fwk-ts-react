@@ -43,7 +43,7 @@ Known limitation, shared with the book: a component whose fragment becomes empty
 
 ## Run it
 
-Requires Node.js 22 or newer.
+Needs Node 24 or newer.
 
 ```sh
 git clone https://github.com/slimcandy/fe-fwk-ts-react
