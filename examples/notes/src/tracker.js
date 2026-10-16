@@ -15,7 +15,13 @@ function color(name) {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 }
 
-const FLASH = { duration: 2400, easing: "cubic-bezier(0.2, 0, 0, 1)" };
+// With "Reduce motion" on, a highlight holds for the same time and then goes
+// away in one step instead of fading out.
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+
+function flash() {
+  return { duration: 2400, easing: reduceMotion.matches ? "steps(1, end)" : "cubic-bezier(0.2, 0, 0, 1)" };
+}
 
 const outputs = new WeakMap();
 let renders = [];
@@ -99,7 +105,7 @@ export function flashRender(element) {
       { outline: `3px solid ${color("--color-render")}`, outlineOffset: "-3px" },
       { outline: "3px solid transparent", outlineOffset: "-3px" },
     ],
-    FLASH
+    flash()
   );
 }
 
@@ -107,14 +113,14 @@ export function flashChange(element) {
   if (quiet) {
     return;
   }
-  element?.animate([{ backgroundColor: color("--color-change") }, { backgroundColor: "transparent" }], FLASH);
+  element?.animate([{ backgroundColor: color("--color-change") }, { backgroundColor: "transparent" }], flash());
 }
 
 export function flashWrite(element) {
   if (quiet) {
     return;
   }
-  element?.animate([{ backgroundColor: color("--color-write") }, { backgroundColor: "transparent" }], FLASH);
+  element?.animate([{ backgroundColor: color("--color-write") }, { backgroundColor: "transparent" }], flash());
 }
 
 function tag(node) {
