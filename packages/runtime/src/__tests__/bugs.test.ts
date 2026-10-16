@@ -54,7 +54,6 @@ describe("moving children of a component that renders a fragment", () => {
       },
       render() {
         // Keep a handle on the instance to change its state from the test.
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
         list = this;
         const { items } = this.state as { items: string[] };
         return fragment(
@@ -88,7 +87,6 @@ describe("moving children of a component that renders a fragment", () => {
         return { items: ["a"] };
       },
       render() {
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
         list = this;
         const { items } = this.state as { items: string[] };
         return fragment([

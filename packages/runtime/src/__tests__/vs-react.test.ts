@@ -38,7 +38,6 @@ function mountOurs(container: HTMLElement, items: Item[], inFragment: boolean) {
     },
     render() {
       // Keep a handle on the instance to change its state from the test.
-      // eslint-disable-next-line @typescript-eslint/no-this-alias
       list = this;
       const { items } = this.state as { items: Item[] };
       const children = items.map(({ id, text }) =>
